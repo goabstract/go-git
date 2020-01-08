@@ -6,10 +6,10 @@ import (
 	"path"
 	"testing"
 
+	fixtures "github.com/goabstract/go-git-fixtures"
+	"github.com/goabstract/go-git/plumbing"
+	"github.com/goabstract/go-git/plumbing/format/commitgraph"
 	. "gopkg.in/check.v1"
-	fixtures "gopkg.in/src-d/go-git-fixtures.v3"
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/format/commitgraph"
 )
 
 func Test(t *testing.T) { TestingT(t) }

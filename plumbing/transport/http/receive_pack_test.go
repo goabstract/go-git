@@ -1,10 +1,10 @@
 package http
 
 import (
-	"gopkg.in/src-d/go-git.v4/plumbing/transport/test"
+	"github.com/goabstract/go-git/plumbing/transport/test"
 
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-git-fixtures.v3"
+	"github.com/goabstract/go-git-fixtures"
 )
 
 type ReceivePackSuite struct {
