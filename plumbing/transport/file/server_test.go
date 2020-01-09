@@ -5,7 +5,7 @@ import (
 	"os/exec"
 
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-git-fixtures.v3"
+	"github.com/goabstract/go-git-fixtures"
 )
 
 type ServerSuite struct {
