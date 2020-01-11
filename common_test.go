@@ -3,17 +3,17 @@ package git
 import (
 	"testing"
 
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/format/packfile"
-	"gopkg.in/src-d/go-git.v4/plumbing/transport"
-	"gopkg.in/src-d/go-git.v4/storage/filesystem"
-	"gopkg.in/src-d/go-git.v4/storage/memory"
+	"github.com/goabstract/go-git/plumbing"
+	"github.com/goabstract/go-git/plumbing/format/packfile"
+	"github.com/goabstract/go-git/plumbing/transport"
+	"github.com/goabstract/go-git/storage/filesystem"
+	"github.com/goabstract/go-git/storage/memory"
 
 	. "gopkg.in/check.v1"
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/memfs"
 	"gopkg.in/src-d/go-billy.v4/util"
-	"gopkg.in/src-d/go-git-fixtures.v3"
+	"github.com/goabstract/go-git-fixtures"
 )
 
 func Test(t *testing.T) { TestingT(t) }

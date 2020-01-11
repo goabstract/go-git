@@ -3,13 +3,13 @@ package revlist
 import (
 	"testing"
 
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/object"
-	"gopkg.in/src-d/go-git.v4/plumbing/storer"
-	"gopkg.in/src-d/go-git.v4/storage/filesystem"
+	"github.com/goabstract/go-git/plumbing"
+	"github.com/goabstract/go-git/plumbing/object"
+	"github.com/goabstract/go-git/plumbing/storer"
+	"github.com/goabstract/go-git/storage/filesystem"
 
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-git-fixtures.v3"
+	"github.com/goabstract/go-git-fixtures"
 )
 
 func Test(t *testing.T) { TestingT(t) }

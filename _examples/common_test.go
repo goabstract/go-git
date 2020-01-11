@@ -72,7 +72,7 @@ func tempFolder() string {
 func packageFolder() string {
 	return filepath.Join(
 		build.Default.GOPATH,
-		"src", "gopkg.in/src-d/go-git.v4",
+		"src", "github.com/goabstract/go-git",
 	)
 }
 

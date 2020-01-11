@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"gopkg.in/src-d/go-git.v4/plumbing"
+	"github.com/goabstract/go-git/plumbing"
 
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-git-fixtures.v3"
+	"github.com/goabstract/go-git-fixtures"
 )
 
 type SubmoduleSuite struct {

@@ -5,7 +5,7 @@ package dotgit
 import (
 	"fmt"
 
-	"gopkg.in/src-d/go-git.v4/plumbing"
+	"github.com/goabstract/go-git/plumbing"
 )
 
 // There are some filesystems that don't support opening files in RDWD mode.

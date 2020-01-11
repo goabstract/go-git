@@ -23,9 +23,9 @@ import (
 	"strconv"
 	"strings"
 
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/protocol/packp"
-	"gopkg.in/src-d/go-git.v4/plumbing/protocol/packp/capability"
+	"github.com/goabstract/go-git/plumbing"
+	"github.com/goabstract/go-git/plumbing/protocol/packp"
+	"github.com/goabstract/go-git/plumbing/protocol/packp/capability"
 )
 
 var (

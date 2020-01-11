@@ -1,8 +1,8 @@
 package packfile
 
 import (
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/format/idxfile"
+	"github.com/goabstract/go-git/plumbing"
+	"github.com/goabstract/go-git/plumbing/format/idxfile"
 )
 
 // Index is an in-memory representation of a packfile index.

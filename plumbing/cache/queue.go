@@ -1,6 +1,6 @@
 package cache
 
-import "gopkg.in/src-d/go-git.v4/plumbing"
+import "github.com/goabstract/go-git/plumbing"
 
 // queue is a basic FIFO queue based on a circular list that resize as needed.
 type queue struct {

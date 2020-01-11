@@ -1,12 +1,12 @@
 package storage
 
 import (
-	"gopkg.in/src-d/go-git.v4/config"
-	"gopkg.in/src-d/go-git.v4/plumbing/storer"
+	"github.com/goabstract/go-git/config"
+	"github.com/goabstract/go-git/plumbing/storer"
 )
 
 // Storer is a generic storage of objects, references and any information
-// related to a particular repository. The package gopkg.in/src-d/go-git.v4/storage
+// related to a particular repository. The package github.com/goabstract/go-git/storage
 // contains two implementation a filesystem base implementation (such as `.git`)
 // and a memory implementations being ephemeral
 type Storer interface {

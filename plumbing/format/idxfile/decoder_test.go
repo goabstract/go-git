@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"testing"
 
-	. "gopkg.in/src-d/go-git.v4/plumbing/format/idxfile"
-	"gopkg.in/src-d/go-git.v4/plumbing/format/packfile"
-	"gopkg.in/src-d/go-git.v4/storage/memory"
+	. "github.com/goabstract/go-git/plumbing/format/idxfile"
+	"github.com/goabstract/go-git/plumbing/format/packfile"
+	"github.com/goabstract/go-git/storage/memory"
 
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-git-fixtures.v3"
+	"github.com/goabstract/go-git-fixtures"
 )
 
 func Test(t *testing.T) { TestingT(t) }

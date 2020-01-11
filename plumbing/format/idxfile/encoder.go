@@ -6,7 +6,7 @@ import (
 	"io"
 	"sort"
 
-	"gopkg.in/src-d/go-git.v4/utils/binary"
+	"github.com/goabstract/go-git/utils/binary"
 )
 
 // Encoder writes Idxfile structs to an output stream.

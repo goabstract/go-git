@@ -1,8 +1,8 @@
 package filesystem
 
 import (
-	"gopkg.in/src-d/go-git.v4/storage"
-	"gopkg.in/src-d/go-git.v4/storage/filesystem/internal/dotgit"
+	"github.com/goabstract/go-git/storage"
+	"github.com/goabstract/go-git/storage/filesystem/internal/dotgit"
 )
 
 type ModuleStorage struct {
