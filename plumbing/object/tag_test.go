@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	fixtures "gopkg.in/src-d/go-git-fixtures.v3"
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/cache"
-	"gopkg.in/src-d/go-git.v4/storage/filesystem"
-	"gopkg.in/src-d/go-git.v4/storage/memory"
+	fixtures "github.com/goabstract/go-git-fixtures"
+	"github.com/goabstract/go-git/plumbing"
+	"github.com/goabstract/go-git/plumbing/cache"
+	"github.com/goabstract/go-git/storage/filesystem"
+	"github.com/goabstract/go-git/storage/memory"
 
 	. "gopkg.in/check.v1"
 )
