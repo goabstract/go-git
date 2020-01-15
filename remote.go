@@ -324,11 +324,9 @@ func (r *Remote) fetch(ctx context.Context, o *FetchOptions) (sto storer.Referen
 		return nil, err
 	}
 
-	var wants []plumbing.Hash
-	wants = append(wants, o.Hashes...)
-	wants = append(wants, wantRefs...)
-
-	req.Wants = wants
+	req.Wants = make([]plumbing.Hash, 0)
+	req.Wants = append(req.Wants, o.Hashes...)
+	req.Wants = append(req.Wants, wantRefs...)
 
 	if len(req.Wants) > 0 {
 		req.Haves, err = getHaves(localRefs, remoteRefs, r.s)
