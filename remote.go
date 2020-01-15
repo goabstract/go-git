@@ -7,6 +7,7 @@ import (
 	"io"
 
 	"gopkg.in/src-d/go-billy.v4/osfs"
+
 	"github.com/goabstract/go-git/config"
 	"github.com/goabstract/go-git/plumbing"
 	"github.com/goabstract/go-git/plumbing/cache"
@@ -282,7 +283,7 @@ func (r *Remote) fetch(ctx context.Context, o *FetchOptions) (sto storer.Referen
 		return nil, err
 	}
 
-	if len(o.RefSpecs) == 0 {
+	if len(o.RefSpecs) == 0 && len(o.Hashes) == 0 {
 		o.RefSpecs = r.c.Fetch
 	}
 
@@ -318,7 +319,17 @@ func (r *Remote) fetch(ctx context.Context, o *FetchOptions) (sto storer.Referen
 		return nil, err
 	}
 
-	req.Wants, err = getWants(r.s, refs)
+	wantRefs, err := getWants(r.s, refs)
+	if err != nil {
+		return nil, err
+	}
+
+	var wants []plumbing.Hash
+	wants = append(wants, o.Hashes...)
+	wants = append(wants, wantRefs...)
+
+	req.Wants = wants
+
 	if len(req.Wants) > 0 {
 		req.Haves, err = getHaves(localRefs, remoteRefs, r.s)
 		if err != nil {
