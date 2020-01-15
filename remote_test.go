@@ -204,7 +204,7 @@ func (s *RemoteSuite) TestFetchWithHashes(c *C) {
 	}, nil)
 
 	commits := r.s.(*memory.Storage).Commits
-	c.Assert(len(commits), Equals, 1)
+	c.Assert(commits, HasLen, 1)
 }
 
 func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
@@ -302,7 +302,7 @@ func (s *RemoteSuite) testFetch(c *C, r *Remote, o *FetchOptions, expected []*pl
 
 		// Only the depth-most parent of any given commit will be shallow.
 		commits := len(r.s.(*memory.Storage).Commits) / o.Depth
-		c.Assert(len(shallowCommits), Equals, commits)
+		c.Assert(shallowCommits, HasLen, commits)
 	} else {
 		c.Assert(refs, Equals, len(expected))
 	}
@@ -954,7 +954,7 @@ func (s *RemoteSuite) TestUpdateShallows(c *C) {
 
 	shallows, err := remote.s.Shallow()
 	c.Assert(err, IsNil)
-	c.Assert(len(shallows), Equals, 0)
+	c.Assert(shallows, HasLen, 0)
 
 	resp := new(packp.UploadPackResponse)
 	o := &FetchOptions{
