@@ -12,6 +12,7 @@ import (
 	"github.com/goabstract/go-git/config"
 	"github.com/goabstract/go-git/plumbing"
 	"github.com/goabstract/go-git/plumbing/cache"
+	"github.com/goabstract/go-git/plumbing/object"
 	"github.com/goabstract/go-git/plumbing/protocol/packp"
 	"github.com/goabstract/go-git/plumbing/protocol/packp/capability"
 	"github.com/goabstract/go-git/plumbing/storer"
@@ -211,15 +212,36 @@ func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
 		URLs: []string{s.GetBasicLocalRepositoryURL()},
 	})
 
+	hash := plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5")
+
 	s.testFetch(c, r, &FetchOptions{
 		Depth: 2,
 		Hashes: []plumbing.Hash{
-			plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5"),
+			hash,
 		},
 	}, nil)
 
 	commits := r.s.(*memory.Storage).Commits
-	c.Assert(len(commits), Equals, 2)
+	c.Assert(commits, HasLen, 2)
+
+	commit, err := object.GetCommit(r.s, hash)
+	c.Assert(err, IsNil)
+
+	parents := commit.Parents()
+	defer parents.Close()
+
+	expected := []string{
+		"918c48b83bd081e863dbe1b80f8998f058cd8294",
+	}
+
+	var output []string
+	err = parents.ForEach(func(commit *object.Commit) error {
+		output = append(output, commit.ID().String())
+		return nil
+	})
+
+	c.Assert(err, IsNil)
+	c.Assert(output, DeepEquals, expected)
 }
 
 func (s *RemoteSuite) TestFetchWithHashesAndReferences(c *C) {
@@ -227,19 +249,27 @@ func (s *RemoteSuite) TestFetchWithHashesAndReferences(c *C) {
 		URLs: []string{s.GetBasicLocalRepositoryURL()},
 	})
 
+	// This commit is in https://github.com/git-fixtures/basic/commits/master
+	hash := plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5")
+	// This commit is in https://github.com/git-fixtures/basic/commits/branch
+	branchHead := plumbing.NewHash("e8d3ffab552895c19b9fcf7aa264d277cde33881")
+
 	s.testFetch(c, r, &FetchOptions{
 		Depth: 1,
 		Hashes: []plumbing.Hash{
-			plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5"),
+			hash,
 		},
 		RefSpecs: []config.RefSpec{
 			config.RefSpec("+refs/heads/branch:refs/remotes/origin/branch"),
 		},
 	}, []*plumbing.Reference{
-		plumbing.NewReferenceFromStrings("refs/remotes/origin/branch", "e8d3ffab552895c19b9fcf7aa264d277cde33881"),
+		plumbing.NewReferenceFromStrings("refs/remotes/origin/branch", branchHead.String()),
 	})
+
 	commits := r.s.(*memory.Storage).Commits
-	c.Assert(len(commits), Equals, 2)
+	c.Assert(commits, HasLen, 2)
+	c.Assert(commits[hash], NotNil)
+	c.Assert(commits[branchHead], NotNil)
 }
 
 func (s *RemoteSuite) TestFetchWithHashesButMissing(c *C) {
