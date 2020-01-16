@@ -138,6 +138,8 @@ type FetchOptions struct {
 	// Name of the remote to fetch from. Defaults to origin.
 	RemoteName string
 	RefSpecs   []config.RefSpec
+	// Hashes that should be fetched explicitly
+	Hashes []plumbing.Hash
 	// Depth limit fetching to the specified number of commits from the tip of
 	// each remote branch history.
 	Depth int
