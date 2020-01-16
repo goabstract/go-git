@@ -12,6 +12,7 @@ import (
 	"github.com/goabstract/go-git/config"
 	"github.com/goabstract/go-git/plumbing"
 	"github.com/goabstract/go-git/plumbing/cache"
+	"github.com/goabstract/go-git/plumbing/object"
 	"github.com/goabstract/go-git/plumbing/protocol/packp"
 	"github.com/goabstract/go-git/plumbing/protocol/packp/capability"
 	"github.com/goabstract/go-git/plumbing/storer"
@@ -21,6 +22,7 @@ import (
 
 	. "gopkg.in/check.v1"
 	"gopkg.in/src-d/go-billy.v4/osfs"
+
 	fixtures "github.com/goabstract/go-git-fixtures"
 )
 
@@ -189,6 +191,102 @@ func (s *RemoteSuite) TestFetchWithDepth(c *C) {
 	c.Assert(r.s.(*memory.Storage).Objects, HasLen, 18)
 }
 
+func (s *RemoteSuite) TestFetchWithHashes(c *C) {
+	r := NewRemote(memory.NewStorage(), &config.RemoteConfig{
+		URLs: []string{s.GetBasicLocalRepositoryURL()},
+	})
+
+	s.testFetch(c, r, &FetchOptions{
+		Depth: 1,
+		Hashes: []plumbing.Hash{
+			plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5"),
+		},
+	}, nil)
+
+	commits := r.s.(*memory.Storage).Commits
+	c.Assert(commits, HasLen, 1)
+}
+
+func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
+	r := NewRemote(memory.NewStorage(), &config.RemoteConfig{
+		URLs: []string{s.GetBasicLocalRepositoryURL()},
+	})
+
+	hash := plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5")
+
+	s.testFetch(c, r, &FetchOptions{
+		Depth: 2,
+		Hashes: []plumbing.Hash{
+			hash,
+		},
+	}, nil)
+
+	commits := r.s.(*memory.Storage).Commits
+	c.Assert(commits, HasLen, 2)
+
+	commit, err := object.GetCommit(r.s, hash)
+	c.Assert(err, IsNil)
+
+	parents := commit.Parents()
+	defer parents.Close()
+
+	expected := []string{
+		"918c48b83bd081e863dbe1b80f8998f058cd8294",
+	}
+
+	var output []string
+	err = parents.ForEach(func(commit *object.Commit) error {
+		output = append(output, commit.ID().String())
+		return nil
+	})
+
+	c.Assert(err, IsNil)
+	c.Assert(output, DeepEquals, expected)
+}
+
+func (s *RemoteSuite) TestFetchWithHashesAndReferences(c *C) {
+	r := NewRemote(memory.NewStorage(), &config.RemoteConfig{
+		URLs: []string{s.GetBasicLocalRepositoryURL()},
+	})
+
+	// This commit is in https://github.com/git-fixtures/basic/commits/master
+	hash := plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5")
+	// This commit is in https://github.com/git-fixtures/basic/commits/branch
+	branchHead := plumbing.NewHash("e8d3ffab552895c19b9fcf7aa264d277cde33881")
+
+	s.testFetch(c, r, &FetchOptions{
+		Depth: 1,
+		Hashes: []plumbing.Hash{
+			hash,
+		},
+		RefSpecs: []config.RefSpec{
+			config.RefSpec("+refs/heads/branch:refs/remotes/origin/branch"),
+		},
+	}, []*plumbing.Reference{
+		plumbing.NewReferenceFromStrings("refs/remotes/origin/branch", branchHead.String()),
+	})
+
+	commits := r.s.(*memory.Storage).Commits
+	c.Assert(commits, HasLen, 2)
+	c.Assert(commits[hash], NotNil)
+	c.Assert(commits[branchHead], NotNil)
+}
+
+func (s *RemoteSuite) TestFetchWithHashesButMissing(c *C) {
+	r := NewRemote(memory.NewStorage(), &config.RemoteConfig{
+		URLs: []string{s.GetBasicLocalRepositoryURL()},
+	})
+
+	err := r.Fetch(&FetchOptions{
+		Depth: 1,
+		Hashes: []plumbing.Hash{
+			plumbing.NewHash("000000000000000000000000000000000000000A"),
+		},
+	})
+
+	c.Assert(err.Error(), Equals, "empty packfile")
+}
+
 func (s *RemoteSuite) testFetch(c *C, r *Remote, o *FetchOptions, expected []*plumbing.Reference) {
 	err := r.Fetch(o)
 	c.Assert(err, IsNil)
@@ -198,7 +296,16 @@ func (s *RemoteSuite) testFetch(c *C, r *Remote, o *FetchOptions, expected []*pl
 	c.Assert(err, IsNil)
 	l.ForEach(func(r *plumbing.Reference) error { refs++; return nil })
 
-	c.Assert(refs, Equals, len(expected))
+	if o.Depth > 0 {
+		shallowCommits, err := r.s.Shallow()
+		c.Assert(err, IsNil)
+
+		// Only the depth-most parent of any given commit will be shallow.
+		commits := len(r.s.(*memory.Storage).Commits) / o.Depth
+		c.Assert(shallowCommits, HasLen, commits)
+	} else {
+		c.Assert(refs, Equals, len(expected))
+	}
 
 	for _, exp := range expected {
 		r, err := r.s.Reference(exp.Name())
@@ -847,7 +954,7 @@ func (s *RemoteSuite) TestUpdateShallows(c *C) {
 
 	shallows, err := remote.s.Shallow()
 	c.Assert(err, IsNil)
-	c.Assert(len(shallows), Equals, 0)
+	c.Assert(shallows, HasLen, 0)
 
 	resp := new(packp.UploadPackResponse)
 	o := &FetchOptions{
