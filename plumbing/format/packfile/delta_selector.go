@@ -12,6 +12,7 @@ const (
 	// deltas based on deltas, how many steps we can do.
 	// 50 is the default value used in JGit
 	maxDepth = int64(50)
+	workers  = 200
 )
 
 // applyDelta is the set of object types that we should apply deltas
@@ -138,14 +139,26 @@ func (dw *deltaSelector) fixAndBreakChains(objectsToPack []*ObjectToPack) error 
 	for _, otp := range objectsToPack {
 		m[otp.Hash()] = otp
 	}
+	numJobs := len(objectsToPack)
+	jobs := make(chan *ObjectToPack, numJobs)
+	results := make(chan error, numJobs)
 
+	for w := 1; w <= workers; w++ {
+		go dw.fixAndBreakChainsWorker(w, m, jobs, results)
+	}
 	for _, otp := range objectsToPack {
-		if err := dw.fixAndBreakChainsOne(m, otp); err != nil {
-			return err
-		}
+		jobs <- otp
 	}
 
+	close(jobs)
+
 	return nil
+}
+
+func (dw *deltaSelector) fixAndBreakChainsWorker(id int, objectsToPack map[plumbing.Hash]*ObjectToPack, jobs <-chan *ObjectToPack, results chan<- error) {
+	for j := range jobs {
+		results <- dw.fixAndBreakChainsOne(objectsToPack, j)
+	}
 }
 
 func (dw *deltaSelector) fixAndBreakChainsOne(objectsToPack map[plumbing.Hash]*ObjectToPack, otp *ObjectToPack) error {
@@ -173,13 +186,20 @@ func (dw *deltaSelector) fixAndBreakChainsOne(objectsToPack map[plumbing.Hash]*O
 		// we break the chain.
 		return dw.undeltify(otp)
 	}
+	ch := make(chan error)
+	go func() {
+		ch <- dw.fixAndBreakChainsOne(objectsToPack, base)
+		close(ch)
+	}()
 
-	if err := dw.fixAndBreakChainsOne(objectsToPack, base); err != nil {
-		return err
+	select {
+	case err := <-ch:
+		if err != nil {
+			return err
+		}
+		otp.SetDelta(base, otp.Object)
+		return nil
 	}
-
-	otp.SetDelta(base, otp.Object)
-	return nil
 }
 
 func (dw *deltaSelector) restoreOriginal(otp *ObjectToPack) error {
