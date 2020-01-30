@@ -43,6 +43,8 @@ var (
 	ErrTagNotFound = errors.New("tag not found")
 	// ErrFetching is returned when the packfile could not be downloaded
 	ErrFetching = errors.New("unable to fetch packfile")
+	// ErrRefExist an error stating the specified reference already exists
+	ErrRefExist = errors.New("reference already exists")
 
 	ErrInvalidReference          = errors.New("invalid reference, should be a tag or a branch")
 	ErrRepositoryNotExists       = errors.New("repository does not exist")
@@ -573,12 +575,23 @@ func (r *Repository) DeleteBranch(name string) error {
 	return r.Storer.SetConfig(cfg)
 }
 
-// CreateReference creates a reference.
+// CreateReference creates a new reference, it will fail if the reference already exists.
 func (r *Repository) CreateReference(name plumbing.ReferenceName, hash plumbing.Hash) (*plumbing.Reference, error) {
-	ref := plumbing.NewHashReference(name, hash)
-	if err := r.Storer.SetReference(ref); err != nil {
+	_, err := r.Storer.Reference(name)
+	// If the reference exists we don't overwrite it
+	if err == nil {
+		return nil, ErrRefExist
+	}
+	// If it fails for any other reasons than a NotFound then we stop
+	if err != plumbing.ErrReferenceNotFound {
 		return nil, err
 	}
+
+	ref := plumbing.NewHashReference(name, hash)
+	if err = r.Storer.SetReference(ref); err != nil {
+		return nil, err
+	}
+
 	return ref, nil
 }
 
