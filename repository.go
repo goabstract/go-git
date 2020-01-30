@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/openpgp"
 	"github.com/goabstract/go-git/config"
 	"github.com/goabstract/go-git/internal/revision"
 	"github.com/goabstract/go-git/plumbing"
@@ -24,6 +23,7 @@ import (
 	"github.com/goabstract/go-git/storage"
 	"github.com/goabstract/go-git/storage/filesystem"
 	"github.com/goabstract/go-git/utils/ioutil"
+	"golang.org/x/crypto/openpgp"
 
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/osfs"
@@ -571,6 +571,15 @@ func (r *Repository) DeleteBranch(name string) error {
 
 	delete(cfg.Branches, name)
 	return r.Storer.SetConfig(cfg)
+}
+
+// CreateReference creates a reference.
+func (r *Repository) CreateReference(name plumbing.ReferenceName, hash plumbing.Hash) (*plumbing.Reference, error) {
+	ref := plumbing.NewHashReference(name, hash)
+	if err := r.Storer.SetReference(ref); err != nil {
+		return nil, err
+	}
+	return ref, nil
 }
 
 // CreateTag creates a tag. If opts is included, the tag is an annotated tag,
