@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/openpgp"
 	"github.com/goabstract/go-git/config"
 	"github.com/goabstract/go-git/internal/revision"
 	"github.com/goabstract/go-git/plumbing"
@@ -24,6 +23,7 @@ import (
 	"github.com/goabstract/go-git/storage"
 	"github.com/goabstract/go-git/storage/filesystem"
 	"github.com/goabstract/go-git/utils/ioutil"
+	"golang.org/x/crypto/openpgp"
 
 	"gopkg.in/src-d/go-billy.v4"
 	"gopkg.in/src-d/go-billy.v4/osfs"
@@ -43,6 +43,8 @@ var (
 	ErrTagNotFound = errors.New("tag not found")
 	// ErrFetching is returned when the packfile could not be downloaded
 	ErrFetching = errors.New("unable to fetch packfile")
+	// ErrRefExist an error stating the specified reference already exists
+	ErrRefExist = errors.New("reference already exists")
 
 	ErrInvalidReference          = errors.New("invalid reference, should be a tag or a branch")
 	ErrRepositoryNotExists       = errors.New("repository does not exist")
@@ -571,6 +573,26 @@ func (r *Repository) DeleteBranch(name string) error {
 
 	delete(cfg.Branches, name)
 	return r.Storer.SetConfig(cfg)
+}
+
+// CreateReference creates a new reference, it will fail if the reference already exists.
+func (r *Repository) CreateReference(name plumbing.ReferenceName, hash plumbing.Hash) (*plumbing.Reference, error) {
+	_, err := r.Storer.Reference(name)
+	// If the reference exists we don't overwrite it
+	if err == nil {
+		return nil, ErrRefExist
+	}
+	// If it fails for any other reasons than a NotFound then we stop
+	if err != plumbing.ErrReferenceNotFound {
+		return nil, err
+	}
+
+	ref := plumbing.NewHashReference(name, hash)
+	if err = r.Storer.SetReference(ref); err != nil {
+		return nil, err
+	}
+
+	return ref, nil
 }
 
 // CreateTag creates a tag. If opts is included, the tag is an annotated tag,
