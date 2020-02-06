@@ -329,9 +329,15 @@ func (r *Remote) fetch(ctx context.Context, o *FetchOptions) (sto storer.Referen
 	req.Wants = append(req.Wants, wantRefs...)
 
 	if len(req.Wants) > 0 {
-		req.Haves, err = getHaves(localRefs, remoteRefs, r.s)
-		if err != nil {
-			return nil, err
+		// if a depth or a list of hash is provided, we assume
+		// we want those commits no matter what. By default the server
+		// wont return commit that are older than what we have in the
+		// HAVE list.
+		if o.Depth == 0 && len(o.Hashes) == 0 {
+			req.Haves, err = getHaves(localRefs, remoteRefs, r.s)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		if err = r.fetchPack(ctx, o, s, req); err != nil {
