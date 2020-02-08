@@ -333,6 +333,7 @@ func (r *Remote) fetch(ctx context.Context, o *FetchOptions) (sto storer.Referen
 		// we want those commits no matter what. By default the server
 		// wont return commit that are older than what we have in the
 		// HAVE list.
+		// TODO(melvin): This needs to be replaced by `shallow <sha>`
 		if o.Depth == 0 && len(o.Hashes) == 0 {
 			req.Haves, err = getHaves(localRefs, remoteRefs, r.s)
 			if err != nil {
