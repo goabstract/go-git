@@ -6,6 +6,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -205,6 +207,53 @@ func (s *RemoteSuite) TestFetchWithHashes(c *C) {
 
 	commits := r.s.(*memory.Storage).Commits
 	c.Assert(commits, HasLen, 1)
+}
+
+func (s *RemoteSuite) TestFetchWithHashesInShallow(c *C) {
+	r := NewRemote(memory.NewStorage(), &config.RemoteConfig{
+		URLs: []string{s.GetBasicLocalRepositoryURL()},
+	})
+
+	// We first need to set the right capabilities otherwise we can't fetch
+	// the commit we want
+	p := filepath.Join(r.c.URLs[0], "config")
+	cfgCmd := exec.Command("git", "config", "--file", p, "--bool", "uploadpack.allowAnySHA1InWant", "true")
+	err := cfgCmd.Run()
+	c.Assert(err, IsNil)
+
+	headHash := plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5")
+	olderHash := plumbing.NewHash("918c48b83bd081e863dbe1b80f8998f058cd8294")
+
+	// We start by fetching the HEAD
+	s.testFetch(c, r, &FetchOptions{
+		Depth: 1,
+		Hashes: []plumbing.Hash{
+			headHash,
+		},
+	}, nil)
+
+	// Control we did get it
+	commits := r.s.(*memory.Storage).Commits
+	c.Assert(commits, HasLen, 1)
+	_, err = object.GetCommit(r.s, headHash)
+	c.Assert(err, IsNil)
+
+	// We now fetch an older SHA
+	s.testFetch(c, r, &FetchOptions{
+		Depth: 1,
+		RefSpecs: []config.RefSpec{
+			config.RefSpec("+refs/heads/master:refs/remotes/origin/master"),
+		},
+		Hashes: []plumbing.Hash{
+			olderHash,
+		},
+	}, nil)
+
+	// Control we did get it
+	commits = r.s.(*memory.Storage).Commits
+	c.Assert(commits, HasLen, 2)
+	_, err = object.GetCommit(r.s, olderHash)
+	c.Assert(err, IsNil)
 }
 
 func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
