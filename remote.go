@@ -329,16 +329,14 @@ func (r *Remote) fetch(ctx context.Context, o *FetchOptions) (sto storer.Referen
 	req.Wants = append(req.Wants, wantRefs...)
 
 	if len(req.Wants) > 0 {
-		// if a depth or a list of hash is provided, we assume
-		// we want those commits no matter what. By default the server
-		// wont return commit that are older than what we have in the
-		// HAVE list.
-		// TODO(melvin): This needs to be replaced by `shallow <sha>`
-		if o.Depth == 0 && len(o.Hashes) == 0 {
-			req.Haves, err = getHaves(localRefs, remoteRefs, r.s)
-			if err != nil {
-				return nil, err
-			}
+		req.Haves, err = getHaves(localRefs, remoteRefs, r.s)
+		if err != nil {
+			return nil, err
+		}
+
+		req.Shallows, err = r.s.Shallow()
+		if err != nil {
+			return nil, err
 		}
 
 		if err = r.fetchPack(ctx, o, s, req); err != nil {
