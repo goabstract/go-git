@@ -403,9 +403,7 @@ func (r *Remote) fetchPack(ctx context.Context, o *FetchOptions, s transport.Upl
 
 	if err = packfile.UpdateObjectStorage(r.s,
 		buildSidebandIfSupported(req.Capabilities, reader, o.Progress),
-		storer.ProgressParsePackfile(func(p *storer.PackfileParseProgress) {
-			fmt.Fprintf(o.Progress, "%s", p)
-		}),
+		o.ProgressParse,
 	); err != nil {
 		return err
 	}
