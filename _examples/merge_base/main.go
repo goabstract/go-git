@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/goabstract/go-git"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/object"
+	"github.com/goabstract/go-git/v5"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/object"
 )
 
 type exitCode int

@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/goabstract/go-git"
-	"github.com/goabstract/go-git/config"
-	"github.com/goabstract/go-git/storage/memory"
+	"github.com/goabstract/go-git/v5"
+	"github.com/goabstract/go-git/v5/config"
+	"github.com/goabstract/go-git/v5/storage/memory"
 )
 
 // Retrieve remote tags without cloning repository

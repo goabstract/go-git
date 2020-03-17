@@ -3,8 +3,8 @@ package object
 import (
 	"io"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/storer"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
 )
 
 // NewFilterCommitIter returns a CommitIter that walks the commit history,
@@ -173,4 +173,3 @@ func (w *filterCommitIter) addToQueue(
 
 	return nil
 }
-

@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/goabstract/go-git/plumbing"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
+	"github.com/goabstract/go-git/v5/plumbing"
 
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type SubmoduleSuite struct {

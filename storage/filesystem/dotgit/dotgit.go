@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/src-d/go-billy.v4/osfs"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/storage"
-	"github.com/goabstract/go-git/utils/ioutil"
+	"github.com/go-git/go-billy/v5/osfs"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/storage"
+	"github.com/goabstract/go-git/v5/utils/ioutil"
 
-	"gopkg.in/src-d/go-billy.v4"
+	"github.com/go-git/go-billy/v5"
 )
 
 const (
@@ -33,8 +33,9 @@ const (
 
 	tmpPackedRefsPrefix = "._packed-refs"
 
-	packExt = ".pack"
-	idxExt  = ".idx"
+	packPrefix = "pack-"
+	packExt    = ".pack"
+	idxExt     = ".idx"
 )
 
 var (
@@ -224,11 +225,11 @@ func (d *DotGit) objectPacks() ([]plumbing.Hash, error) {
 
 	var packs []plumbing.Hash
 	for _, f := range files {
-		if !strings.HasSuffix(f.Name(), packExt) {
+		n := f.Name()
+		if !strings.HasSuffix(n, packExt) || !strings.HasPrefix(n, packPrefix) {
 			continue
 		}
 
-		n := f.Name()
 		h := plumbing.NewHash(n[5 : len(n)-5]) //pack-(hash).pack
 		if h.IsZero() {
 			// Ignore files with badly-formatted names.

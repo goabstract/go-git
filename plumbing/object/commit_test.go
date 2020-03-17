@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
-	fixtures "github.com/goabstract/go-git-fixtures"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
 
+	"github.com/goabstract/go-git/v5/storage/filesystem"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git/storage/filesystem"
 )
 
 type SuiteCommit struct {

@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/object"
-	"github.com/goabstract/go-git/storage/memory"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/object"
+	"github.com/goabstract/go-git/v5/storage/memory"
 
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type ReferencesSuite struct {

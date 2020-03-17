@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/goabstract/go-git"
-	. "github.com/goabstract/go-git/_examples"
+	"github.com/goabstract/go-git/v5"
+	. "github.com/goabstract/go-git/v5/_examples"
 )
 
 // Example of how to show the progress when you do a basic clone operation.

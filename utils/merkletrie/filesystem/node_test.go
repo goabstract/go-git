@@ -7,12 +7,12 @@ import (
 	"path"
 	"testing"
 
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/memfs"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/utils/merkletrie"
+	"github.com/goabstract/go-git/v5/utils/merkletrie/noder"
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-billy.v4"
-	"gopkg.in/src-d/go-billy.v4/memfs"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/utils/merkletrie"
-	"github.com/goabstract/go-git/utils/merkletrie/noder"
 )
 
 func Test(t *testing.T) { TestingT(t) }

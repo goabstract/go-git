@@ -4,12 +4,12 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/goabstract/go-git/config"
-	"github.com/goabstract/go-git/storage/filesystem/dotgit"
+	"github.com/goabstract/go-git/v5/config"
+	"github.com/goabstract/go-git/v5/storage/filesystem/dotgit"
 
+	"github.com/go-git/go-billy/v5/osfs"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-billy.v4/osfs"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type ConfigSuite struct {

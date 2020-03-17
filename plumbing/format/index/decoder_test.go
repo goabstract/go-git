@@ -3,11 +3,11 @@ package index
 import (
 	"testing"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/filemode"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/filemode"
 
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 func Test(t *testing.T) { TestingT(t) }

@@ -4,14 +4,14 @@ import (
 	"errors"
 	"io"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/plumbing/filemode"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/storage/filesystem"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/filemode"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/storage/filesystem"
 
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type TreeSuite struct {

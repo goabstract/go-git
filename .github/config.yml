@@ -1,0 +1,6 @@
+# Users authorized to run manual backports
+authorizedUsers:
+    - davetakahashi-abstract
+    - joesteele
+    - johncoder
+    - nivl

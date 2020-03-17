@@ -4,8 +4,8 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/storer"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
 )
 
 const (
@@ -33,7 +33,10 @@ func newDeltaSelector(s storer.EncodedObjectStorer) *deltaSelector {
 // internal logic.  `packWindow` specifies the size of the sliding
 // window used to compare objects for delta compression; 0 turns off
 // delta compression entirely.
-func (dw *deltaSelector) ObjectsToPack(hashes []plumbing.Hash, packWindow uint) ([]*ObjectToPack, error) {
+func (dw *deltaSelector) ObjectsToPack(
+	hashes []plumbing.Hash,
+	packWindow uint,
+) ([]*ObjectToPack, error) {
 	otp, err := dw.objectsToPack(hashes, packWindow)
 	if err != nil {
 		return nil, err
@@ -81,7 +84,10 @@ func (dw *deltaSelector) ObjectsToPack(hashes []plumbing.Hash, packWindow uint) 
 	return otp, nil
 }
 
-func (dw *deltaSelector) objectsToPack(hashes []plumbing.Hash, packWindow uint) ([]*ObjectToPack, error) {
+func (dw *deltaSelector) objectsToPack(
+	hashes []plumbing.Hash,
+	packWindow uint,
+) ([]*ObjectToPack, error) {
 	var objectsToPack []*ObjectToPack
 	for _, h := range hashes {
 		var o plumbing.EncodedObject
@@ -133,11 +139,46 @@ func (dw *deltaSelector) fixAndBreakChains(objectsToPack []*ObjectToPack) error 
 		m[otp.Hash()] = otp
 	}
 
-	b := NewDeltaBuilder(dw, m)
-	if _, err := b.PrepareData(); err != nil {
+	for _, otp := range objectsToPack {
+		if err := dw.fixAndBreakChainsOne(m, otp); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (dw *deltaSelector) fixAndBreakChainsOne(objectsToPack map[plumbing.Hash]*ObjectToPack, otp *ObjectToPack) error {
+	if !otp.Object.Type().IsDelta() {
+		return nil
+	}
+
+	// Initial ObjectToPack instances might have a delta assigned to Object
+	// but no actual base initially. Once Base is assigned to a delta, it means
+	// we already fixed it.
+	if otp.Base != nil {
+		return nil
+	}
+
+	do, ok := otp.Object.(plumbing.DeltaObject)
+	if !ok {
+		// if this is not a DeltaObject, then we cannot retrieve its base,
+		// so we have to break the delta chain here.
+		return dw.undeltify(otp)
+	}
+
+	base, ok := objectsToPack[do.BaseHash()]
+	if !ok {
+		// The base of the delta is not in our list of objects to pack, so
+		// we break the chain.
+		return dw.undeltify(otp)
+	}
+
+	if err := dw.fixAndBreakChainsOne(objectsToPack, base); err != nil {
 		return err
 	}
 
+	otp.SetDelta(base, otp.Object)
 	return nil
 }
 

@@ -1,6 +1,6 @@
 package transactional
 
-import "github.com/goabstract/go-git/config"
+import "github.com/goabstract/go-git/v5/config"
 
 // ConfigStorage implements the storer.ConfigStorage for the transactional package.
 type ConfigStorage struct {

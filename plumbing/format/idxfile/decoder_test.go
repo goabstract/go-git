@@ -8,11 +8,11 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/goabstract/go-git/plumbing"
-	. "github.com/goabstract/go-git/plumbing/format/idxfile"
+	"github.com/goabstract/go-git/v5/plumbing"
+	. "github.com/goabstract/go-git/v5/plumbing/format/idxfile"
 
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 func Test(t *testing.T) { TestingT(t) }
@@ -48,7 +48,7 @@ func (s *IdxfileSuite) TestDecode(c *C) {
 	c.Assert(crc32, Equals, uint32(3645019190))
 
 	c.Assert(fmt.Sprintf("%x", idx.IdxChecksum), Equals, "fb794f1ec720b9bc8e43257451bd99c4be6fa1c9")
-	c.Assert(fmt.Sprintf("%x", idx.PackfileChecksum), Equals, f.PackfileHash.String())
+	c.Assert(fmt.Sprintf("%x", idx.PackfileChecksum), Equals, f.PackfileHash)
 }
 
 func (s *IdxfileSuite) TestDecode64bitsOffsets(c *C) {
@@ -118,21 +118,13 @@ ch2xUA==
 `
 
 func BenchmarkDecode(b *testing.B) {
-	if err := fixtures.Init(); err != nil {
-		b.Errorf("unexpected error initializing fixtures: %s", err)
-	}
-
 	f := fixtures.Basic().One()
 	fixture, err := ioutil.ReadAll(f.Idx())
 	if err != nil {
 		b.Errorf("unexpected error reading idx file: %s", err)
 	}
 
-	defer func() {
-		if err := fixtures.Clean(); err != nil {
-			b.Errorf("unexpected error cleaning fixtures: %s", err)
-		}
-	}()
+	defer fixtures.Clean()
 
 	for i := 0; i < b.N; i++ {
 		f := bytes.NewBuffer(fixture)

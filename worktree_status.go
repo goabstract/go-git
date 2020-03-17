@@ -8,17 +8,17 @@ import (
 	"path"
 	"path/filepath"
 
-	"gopkg.in/src-d/go-billy.v4/util"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/filemode"
-	"github.com/goabstract/go-git/plumbing/format/gitignore"
-	"github.com/goabstract/go-git/plumbing/format/index"
-	"github.com/goabstract/go-git/plumbing/object"
-	"github.com/goabstract/go-git/utils/ioutil"
-	"github.com/goabstract/go-git/utils/merkletrie"
-	"github.com/goabstract/go-git/utils/merkletrie/filesystem"
-	mindex "github.com/goabstract/go-git/utils/merkletrie/index"
-	"github.com/goabstract/go-git/utils/merkletrie/noder"
+	"github.com/go-git/go-billy/v5/util"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/filemode"
+	"github.com/goabstract/go-git/v5/plumbing/format/gitignore"
+	"github.com/goabstract/go-git/v5/plumbing/format/index"
+	"github.com/goabstract/go-git/v5/plumbing/object"
+	"github.com/goabstract/go-git/v5/utils/ioutil"
+	"github.com/goabstract/go-git/v5/utils/merkletrie"
+	"github.com/goabstract/go-git/v5/utils/merkletrie/filesystem"
+	mindex "github.com/goabstract/go-git/v5/utils/merkletrie/index"
+	"github.com/goabstract/go-git/v5/utils/merkletrie/noder"
 )
 
 var (

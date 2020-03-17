@@ -3,16 +3,16 @@ package server_test
 import (
 	"testing"
 
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/plumbing/transport"
-	"github.com/goabstract/go-git/plumbing/transport/client"
-	"github.com/goabstract/go-git/plumbing/transport/server"
-	"github.com/goabstract/go-git/plumbing/transport/test"
-	"github.com/goabstract/go-git/storage/filesystem"
-	"github.com/goabstract/go-git/storage/memory"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/transport"
+	"github.com/goabstract/go-git/v5/plumbing/transport/client"
+	"github.com/goabstract/go-git/v5/plumbing/transport/server"
+	"github.com/goabstract/go-git/v5/plumbing/transport/test"
+	"github.com/goabstract/go-git/v5/storage/filesystem"
+	"github.com/goabstract/go-git/v5/storage/memory"
 
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 func Test(t *testing.T) { TestingT(t) }
@@ -28,7 +28,6 @@ type BaseSuite struct {
 }
 
 func (s *BaseSuite) SetUpSuite(c *C) {
-	s.Suite.SetUpSuite(c)
 	s.loader = server.MapLoader{}
 	if s.asClient {
 		s.client = server.NewClient(s.loader)

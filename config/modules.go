@@ -5,7 +5,7 @@ import (
 	"errors"
 	"regexp"
 
-	format "github.com/goabstract/go-git/plumbing/format/config"
+	format "github.com/goabstract/go-git/v5/plumbing/format/config"
 )
 
 var (

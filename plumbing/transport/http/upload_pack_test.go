@@ -6,13 +6,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/protocol/packp"
-	"github.com/goabstract/go-git/plumbing/transport"
-	"github.com/goabstract/go-git/plumbing/transport/test"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/protocol/packp"
+	"github.com/goabstract/go-git/v5/plumbing/transport"
+	"github.com/goabstract/go-git/v5/plumbing/transport/test"
 
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type UploadPackSuite struct {

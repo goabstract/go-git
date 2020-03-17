@@ -10,30 +10,31 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
 
-	fixtures "github.com/goabstract/go-git-fixtures"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 
 	"golang.org/x/crypto/openpgp"
 	"golang.org/x/crypto/openpgp/armor"
 	openpgperr "golang.org/x/crypto/openpgp/errors"
 
-	"github.com/goabstract/go-git/config"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/plumbing/object"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/plumbing/transport"
-	"github.com/goabstract/go-git/storage"
-	"github.com/goabstract/go-git/storage/filesystem"
-	"github.com/goabstract/go-git/storage/memory"
+	"github.com/goabstract/go-git/v5/config"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/object"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/plumbing/transport"
+	"github.com/goabstract/go-git/v5/storage"
+	"github.com/goabstract/go-git/v5/storage/filesystem"
+	"github.com/goabstract/go-git/v5/storage/memory"
 
+	"github.com/go-git/go-billy/v5/memfs"
+	"github.com/go-git/go-billy/v5/osfs"
+	"github.com/go-git/go-billy/v5/util"
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-billy.v4/memfs"
-	"gopkg.in/src-d/go-billy.v4/osfs"
-	"gopkg.in/src-d/go-billy.v4/util"
 )
 
 type RepositorySuite struct {
@@ -1676,6 +1677,70 @@ func (s *RepositorySuite) TestLogFileWithError(c *C) {
 	c.Assert(err, NotNil)
 }
 
+func (s *RepositorySuite) TestLogPathWithError(c *C) {
+	fileName := "README"
+	pathIter := func(path string) bool {
+		return path == fileName
+	}
+	cIter := object.NewCommitPathIterFromIter(pathIter, &mockErrCommitIter{}, false)
+	defer cIter.Close()
+
+	err := cIter.ForEach(func(commit *object.Commit) error {
+		return nil
+	})
+	c.Assert(err, NotNil)
+}
+
+func (s *RepositorySuite) TestLogPathRegexpWithError(c *C) {
+	pathRE := regexp.MustCompile("R.*E")
+	pathIter := func(path string) bool {
+		return pathRE.MatchString(path)
+	}
+	cIter := object.NewCommitPathIterFromIter(pathIter, &mockErrCommitIter{}, false)
+	defer cIter.Close()
+
+	err := cIter.ForEach(func(commit *object.Commit) error {
+		return nil
+	})
+	c.Assert(err, NotNil)
+}
+
+func (s *RepositorySuite) TestLogPathFilterRegexp(c *C) {
+	pathRE := regexp.MustCompile(".*\\.go")
+	pathIter := func(path string) bool {
+		return pathRE.MatchString(path)
+	}
+
+	r, _ := Init(memory.NewStorage(), nil)
+	err := r.clone(context.Background(), &CloneOptions{
+		URL: s.GetBasicLocalRepositoryURL(),
+	})
+	c.Assert(err, IsNil)
+
+	expectedCommitIDs := []string{
+		"6ecf0ef2c2dffb796033e5a02219af86ec6584e5",
+		"918c48b83bd081e863dbe1b80f8998f058cd8294",
+	}
+	commitIDs := []string{}
+
+	cIter, err := r.Log(&LogOptions{
+		PathFilter: pathIter,
+		From:       plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5"),
+	})
+	c.Assert(err, IsNil)
+	defer cIter.Close()
+
+	cIter.ForEach(func(commit *object.Commit) error {
+		commitIDs = append(commitIDs, commit.ID().String())
+		return nil
+	})
+	c.Assert(
+		strings.Join(commitIDs, ", "),
+		Equals,
+		strings.Join(expectedCommitIDs, ", "),
+	)
+}
+
 func (s *RepositorySuite) TestLogLimitNext(c *C) {
 	r, _ := Init(memory.NewStorage(), nil)
 	err := r.clone(context.Background(), &CloneOptions{
@@ -2779,18 +2844,10 @@ func (s *RepositorySuite) TestBrokenMultipleShallowFetch(c *C) {
 }
 
 func BenchmarkObjects(b *testing.B) {
-	if err := fixtures.Init(); err != nil {
-		b.Fatal(err)
-	}
-
-	defer func() {
-		if err := fixtures.Clean(); err != nil {
-			b.Fatal(err)
-		}
-	}()
+	defer fixtures.Clean()
 
 	for _, f := range fixtures.ByTag("packfile") {
-		if f.DotGitHash == plumbing.ZeroHash {
+		if f.DotGitHash == "" {
 			continue
 		}
 

@@ -3,9 +3,9 @@ package object
 import (
 	"io"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/filemode"
-	"github.com/goabstract/go-git/utils/merkletrie/noder"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/filemode"
+	"github.com/goabstract/go-git/v5/utils/merkletrie/noder"
 )
 
 // A treenoder is a helper type that wraps git trees into merkletrie

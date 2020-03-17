@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"time"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/format/pktline"
-	"github.com/goabstract/go-git/plumbing/protocol/packp/capability"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/format/pktline"
+	"github.com/goabstract/go-git/v5/plumbing/protocol/packp/capability"
 
 	. "gopkg.in/check.v1"
 )

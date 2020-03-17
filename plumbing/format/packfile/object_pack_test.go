@@ -3,7 +3,7 @@ package packfile
 import (
 	"io"
 
-	"github.com/goabstract/go-git/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing"
 
 	. "gopkg.in/check.v1"
 )

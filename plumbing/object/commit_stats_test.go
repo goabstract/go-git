@@ -4,15 +4,15 @@ import (
 	"context"
 	"time"
 
-	"github.com/goabstract/go-git"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/object"
-	"github.com/goabstract/go-git/storage/memory"
+	"github.com/goabstract/go-git/v5"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/object"
+	"github.com/goabstract/go-git/v5/storage/memory"
 
+	"github.com/go-git/go-billy/v5/memfs"
+	"github.com/go-git/go-billy/v5/util"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-billy.v4/memfs"
-	"gopkg.in/src-d/go-billy.v4/util"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type CommitStatsSuite struct {

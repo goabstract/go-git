@@ -3,17 +3,17 @@ package object
 import (
 	"sort"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/plumbing/filemode"
-	"github.com/goabstract/go-git/plumbing/format/packfile"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/storage/filesystem"
-	"github.com/goabstract/go-git/storage/memory"
-	"github.com/goabstract/go-git/utils/merkletrie"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/filemode"
+	"github.com/goabstract/go-git/v5/plumbing/format/packfile"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/storage/filesystem"
+	"github.com/goabstract/go-git/v5/storage/memory"
+	"github.com/goabstract/go-git/v5/utils/merkletrie"
 
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type DiffTreeSuite struct {
@@ -24,7 +24,6 @@ type DiffTreeSuite struct {
 }
 
 func (s *DiffTreeSuite) SetUpSuite(c *C) {
-	s.Suite.SetUpSuite(c)
 	s.Fixture = fixtures.Basic().One()
 	sto := filesystem.NewStorage(s.Fixture.DotGit(), cache.NewObjectLRUDefault())
 	s.Storer = sto

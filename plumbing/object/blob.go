@@ -3,9 +3,9 @@ package object
 import (
 	"io"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/utils/ioutil"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/utils/ioutil"
 )
 
 // Blob is used to store arbitrary data - it is generally a file.

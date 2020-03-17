@@ -7,13 +7,13 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/goabstract/go-git/config"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/format/index"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/storage"
+	"github.com/goabstract/go-git/v5/config"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/format/index"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/storage"
 
-	fixtures "github.com/goabstract/go-git-fixtures"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
 )
 
@@ -65,12 +65,8 @@ func NewBaseStorageSuite(s Storer) BaseStorageSuite {
 		}}
 }
 
-func (s *BaseStorageSuite) SetUpTest(c *C) {
-	c.Assert(fixtures.Init(), IsNil)
-}
-
 func (s *BaseStorageSuite) TearDownTest(c *C) {
-	c.Assert(fixtures.Clean(), IsNil)
+	fixtures.Clean()
 }
 
 func (s *BaseStorageSuite) TestSetEncodedObjectAndEncodedObject(c *C) {

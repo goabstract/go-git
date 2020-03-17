@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/storage/filesystem"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/storage/filesystem"
 
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
-	fixtures "github.com/goabstract/go-git-fixtures"
 )
 
 func alphabeticSortCommits(commits []*Commit) {
@@ -67,7 +67,6 @@ type mergeBaseSuite struct {
 }
 
 func (s *mergeBaseSuite) SetUpSuite(c *C) {
-	s.Suite.SetUpSuite(c)
 	s.Fixture = fixtures.ByTag("merge-base").One()
 	s.Storer = filesystem.NewStorage(s.Fixture.DotGit(), cache.NewObjectLRUDefault())
 }

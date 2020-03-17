@@ -5,12 +5,12 @@ import (
 	"encoding/base64"
 	"io/ioutil"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/format/idxfile"
-	"github.com/goabstract/go-git/plumbing/format/packfile"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/format/idxfile"
+	"github.com/goabstract/go-git/v5/plumbing/format/packfile"
 
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type WriterSuite struct {

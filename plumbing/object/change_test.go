@@ -4,16 +4,16 @@ import (
 	"context"
 	"sort"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/plumbing/filemode"
-	"github.com/goabstract/go-git/plumbing/format/diff"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/storage/filesystem"
-	"github.com/goabstract/go-git/utils/merkletrie"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/filemode"
+	"github.com/goabstract/go-git/v5/plumbing/format/diff"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/storage/filesystem"
+	"github.com/goabstract/go-git/v5/utils/merkletrie"
 
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type ChangeSuite struct {
@@ -23,7 +23,6 @@ type ChangeSuite struct {
 }
 
 func (s *ChangeSuite) SetUpSuite(c *C) {
-	s.Suite.SetUpSuite(c)
 	s.Fixture = fixtures.ByURL("https://github.com/src-d/go-git.git").
 		ByTag(".git").One()
 	sto := filesystem.NewStorage(s.Fixture.DotGit(), cache.NewObjectLRUDefault())
@@ -250,7 +249,6 @@ func (s *ChangeSuite) TestEmptyChangeFails(c *C) {
 
 // test reproducing bug #317
 func (s *ChangeSuite) TestNoFileFilemodes(c *C) {
-	s.Suite.SetUpSuite(c)
 	f := fixtures.ByURL("https://github.com/git-fixtures/submodule.git").One()
 
 	sto := filesystem.NewStorage(f.DotGit(), cache.NewObjectLRUDefault())

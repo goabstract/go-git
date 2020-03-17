@@ -1,13 +1,13 @@
 package server
 
 import (
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/plumbing/transport"
-	"github.com/goabstract/go-git/storage/filesystem"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/plumbing/transport"
+	"github.com/goabstract/go-git/v5/storage/filesystem"
 
-	"gopkg.in/src-d/go-billy.v4"
-	"gopkg.in/src-d/go-billy.v4/osfs"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/osfs"
 )
 
 // DefaultLoader is a filesystem loader ignoring host and resolving paths to /.
