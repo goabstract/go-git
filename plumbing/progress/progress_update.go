@@ -56,15 +56,19 @@ func (p *ProgressUpdate) String() string {
 	} else if p.Type == ProgressResolvingDeltas {
 		t = "Resolving deltas"
 	}
+	bytesReceived := ""
 	rate := ""
-	if p.Rate > 0 && p.BytesReceived > 0 {
-		rate = fmt.Sprintf(", %s | %s", p.BytesReceivedIEC(), p.RateIEC())
+	if p.BytesReceived > 0 {
+		if p.Rate > 0 {
+			rate = fmt.Sprintf(" | %s", p.RateIEC())
+		}
+		bytesReceived = fmt.Sprintf(", %s%s", p.BytesReceivedIEC(), rate)
 	}
-	return fmt.Sprintf("%s: %3.0f%% (%5d/%-5d)%s",
+	return fmt.Sprintf("%s: %3.0f%% (%4d/%-4d)%s",
 		t,
 		p.Percentage(),
 		p.Count, p.Max,
-		rate)
+		bytesReceived)
 }
 
 // ToIEC converts a size of bytes into the corresponding IEC unit
