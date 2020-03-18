@@ -72,6 +72,7 @@ func (p *ProgressUpdate) String() string {
 }
 
 // ToIEC converts a size of bytes into the corresponding IEC unit
+// SEE: https://github.com/git/git/blob/be8661a3286c67a5d4088f4226cbd7f8b76544b0/strbuf.c#L830-L869
 func ToIEC(v uint64, scale IECScale) float32 {
 	characteristic := uint64(0)
 	mantissa := uint64(0)

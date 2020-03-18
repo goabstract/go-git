@@ -25,6 +25,7 @@ func NewThroughput() *Throughput {
 }
 
 // AdvanceTime tracks the progress and returns the current rate of bytes being read
+// SEE: https://github.com/git/git/blob/be8661a3286c67a5d4088f4226cbd7f8b76544b0/progress.c#L186-L244
 func (t *Throughput) AdvanceTime(now int64) uint64 {
 	// a "misec" is 1/1024 of a second, useful for simplifying the
 	// calculation of rate in IEC units
