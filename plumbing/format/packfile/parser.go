@@ -291,6 +291,11 @@ func (p *Parser) resolveDeltas() error {
 			return err
 		}
 
+		if obj.DiskType.IsDelta() {
+			p.deltasSeen++
+			p.writeProgress()
+		}
+
 		content := buf.Bytes()
 
 		if err := p.onInflatedObjectHeader(obj.Type, obj.Length, obj.Offset); err != nil {
@@ -351,8 +356,6 @@ func (p *Parser) get(o *objectInfo, buf *bytes.Buffer) error {
 	}
 
 	if o.DiskType.IsDelta() {
-		p.deltasSeen++
-		p.writeProgress()
 		b := bufPool.Get().(*bytes.Buffer)
 		defer bufPool.Put(b)
 		b.Reset()
