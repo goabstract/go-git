@@ -45,6 +45,8 @@ func (pc *ProgressCollector) Start(ctx context.Context) {
 	go func() {
 		defer close(pc.pr.Receive)
 
+		startedReceivingObjects := false
+		startedResolvingDeltas := false
 		doneReceivingObjects := false
 		doneResolvingDeltas := false
 		var lastObject *CountingProgressUpdate = nil
@@ -59,15 +61,49 @@ func (pc *ProgressCollector) Start(ctx context.Context) {
 		defer updateTicker.Stop()
 		defer rateTicker.Stop()
 
+		sendReceivingObjects := func() {
+			if lastObject != nil && !doneReceivingObjects {
+				pc.pr.Receive <- &ProgressUpdate{
+					Type:          ProgressReceivingObjects,
+					Count:         lastObject.Count,
+					Max:           lastObject.Max,
+					BytesReceived: total,
+					Rate:          rate,
+				}
+
+				if lastObject.Count == lastObject.Max {
+					doneReceivingObjects = true
+				}
+			}
+		}
+
+		sendResolvingDeltas := func() {
+			if lastDelta != nil && !doneResolvingDeltas {
+				pc.pr.Receive <- &ProgressUpdate{
+					Type:  ProgressResolvingDeltas,
+					Count: lastDelta.Count,
+					Max:   lastDelta.Max,
+				}
+
+				if lastDelta.Count == lastDelta.Max {
+					doneResolvingDeltas = true
+				}
+			}
+		}
+
 		for {
 			select {
 			case v := <-pc.receiveObject:
-				if !doneReceivingObjects {
-					lastObject = v
+				lastObject = v
+				if !startedReceivingObjects {
+					startedReceivingObjects = true
+					sendReceivingObjects()
 				}
 			case v := <-pc.resolveDelta:
-				if !doneResolvingDeltas {
-					lastDelta = v
+				lastDelta = v
+				if !startedResolvingDeltas {
+					startedResolvingDeltas = true
+					sendResolvingDeltas()
 				}
 			case v := <-pc.accumulate:
 				total += uint64(v)
@@ -75,50 +111,12 @@ func (pc *ProgressCollector) Start(ctx context.Context) {
 			case <-rateTicker.C:
 				rate = throughput.AdvanceTime(time.Now().UnixNano())
 			case <-updateTicker.C:
-				if lastObject != nil && !doneReceivingObjects {
-					pc.pr.Receive <- &ProgressUpdate{
-						Type:          ProgressReceivingObjects,
-						Count:         lastObject.Count,
-						Max:           lastObject.Max,
-						BytesReceived: total,
-						Rate:          rate,
-					}
-
-					if lastObject.Count == lastObject.Max {
-						doneReceivingObjects = true
-					}
-				}
-
-				if lastDelta != nil && !doneResolvingDeltas {
-					pc.pr.Receive <- &ProgressUpdate{
-						Type:  ProgressResolvingDeltas,
-						Count: lastDelta.Count,
-						Max:   lastDelta.Max,
-					}
-
-					if lastDelta.Count == lastDelta.Max {
-						doneResolvingDeltas = true
-					}
-				}
+				sendReceivingObjects()
+				sendResolvingDeltas()
 			case <-ctx.Done():
 				rate = throughput.AdvanceTime(time.Now().UnixNano())
-				if lastObject != nil {
-					pc.pr.Receive <- &ProgressUpdate{
-						Type:          ProgressReceivingObjects,
-						Count:         lastObject.Count,
-						Max:           lastObject.Max,
-						BytesReceived: total,
-						Rate:          rate,
-					}
-				}
-
-				if lastDelta != nil {
-					pc.pr.Receive <- &ProgressUpdate{
-						Type:  ProgressResolvingDeltas,
-						Count: lastDelta.Count,
-						Max:   lastDelta.Max,
-					}
-				}
+				sendReceivingObjects()
+				sendResolvingDeltas()
 				return
 			}
 		}
