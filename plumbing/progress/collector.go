@@ -47,8 +47,8 @@ func (pc *Collector) Start(ctx context.Context) {
 		startedResolvingDeltas := false
 		doneReceivingObjects := false
 		doneResolvingDeltas := false
-		var lastObject *CountingUpdate = nil
-		var lastDelta *CountingUpdate = nil
+		var lastObject *CountingUpdate
+		var lastDelta *CountingUpdate
 
 		total := uint64(0)
 		rate := uint64(0)
