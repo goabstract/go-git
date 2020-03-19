@@ -8,7 +8,7 @@ import (
 
 // CountingUpdate holds the part and whole for calculating percentage of progress
 type CountingUpdate struct {
-	Type  ProgressType
+	Type  UpdateType
 	Count uint32
 	Max   uint32
 }
@@ -146,7 +146,7 @@ func (pc *Collector) Read(b []byte) (int, error) {
 	return bytesRead, err
 }
 
-// Seeker satisfies the io.Seeker interface
+// Seek satisfies the io.Seeker interface
 func (pc *Collector) Seek(offset int64, whence int) (int64, error) {
 	return pc.seeker.Seek(offset, whence)
 }

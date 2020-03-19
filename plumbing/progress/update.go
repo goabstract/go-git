@@ -15,7 +15,7 @@ const (
 	ScaleBiB = IECScale(1)
 
 	// ReceivingObjects represents progress from counting received objects
-	ReceivingObjects ProgressType = iota
+	ReceivingObjects UpdateType = iota
 	// ResolvingDeltas represents progress from counting resolved deltas
 	ResolvingDeltas
 )
@@ -23,12 +23,12 @@ const (
 // IECScale is a number used to represent bytes at various scales (GiB, MiB, KiB, bytes)
 type IECScale uint64
 
-// ProgressType is the type of progress update being sent
-type ProgressType int
+// UpdateType is the type of progress update being sent
+type UpdateType int
 
 // Update is what the consuming code will get notified with
 type Update struct {
-	Type          ProgressType
+	Type          UpdateType
 	Count         uint32
 	Max           uint32
 	BytesReceived uint64
