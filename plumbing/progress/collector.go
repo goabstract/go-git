@@ -24,6 +24,7 @@ type Collector struct {
 	pr            *Reporter
 }
 
+// NewCollector creates a Collector
 func NewCollector(reader io.Reader, pr *Reporter) *Collector {
 	seeker, ok := reader.(io.ReadSeeker)
 	return &Collector{

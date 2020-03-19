@@ -1,6 +1,7 @@
 package progress
 
 const (
+	// ThroughputRateSlotCount is the number of samples used to calculate rate
 	ThroughputRateSlotCount = 8
 )
 

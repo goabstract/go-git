@@ -1,6 +1,7 @@
 package progress
 
 import (
+	"io"
 	"time"
 )
 
@@ -18,4 +19,9 @@ func NewReporter(updatePeriod time.Duration, ratePeriod time.Duration) *Reporter
 		UpdatePeriod: updatePeriod,
 		RatePeriod:   ratePeriod,
 	}
+}
+
+// CreateCollector creates a new Collector that will report progress updates to this Reporter
+func (r *Reporter) CreateCollector(reader io.Reader) *Collector {
+	return NewCollector(reader, r)
 }

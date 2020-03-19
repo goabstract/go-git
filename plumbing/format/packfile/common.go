@@ -32,7 +32,7 @@ func UpdateObjectStorage(s storer.Storer, packfile io.Reader, pr *progress.Repor
 	reader := packfile
 	var pc *progress.Collector = nil
 	if pr != nil {
-		pc = progress.NewCollector(packfile, pr)
+		pc = pr.CreateCollector(packfile)
 		reader = pc
 	}
 	if pw, ok := s.(storer.PackfileWriter); ok {

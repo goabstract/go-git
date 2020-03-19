@@ -14,7 +14,9 @@ const (
 	// ScaleBiB is the base scale for representing a number of bytes
 	ScaleBiB = IECScale(1)
 
+	// ReceivingObjects represents progress from counting received objects
 	ReceivingObjects ProgressType = iota
+	// ResolvingDeltas represents progress from counting resolved deltas
 	ResolvingDeltas
 )
 
