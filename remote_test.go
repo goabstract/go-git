@@ -392,7 +392,7 @@ func (m *mockPackfileWriter) PackfileWriter() (io.WriteCloser, error) {
 	return m.Storer.(storer.PackfileWriter).PackfileWriter()
 }
 
-func (m *mockPackfileWriter) PackfileWriterWithProgress(pc *progress.ProgressCollector) (io.WriteCloser, error) {
+func (m *mockPackfileWriter) PackfileWriterWithProgress(pc *progress.Collector) (io.WriteCloser, error) {
 	return m.PackfileWriter()
 }
 
