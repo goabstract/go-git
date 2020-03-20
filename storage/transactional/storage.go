@@ -101,6 +101,6 @@ func (s *packageWriter) PackfileWriter() (io.WriteCloser, error) {
 }
 
 // PackfileWriterWithProgress honors storage.PackfileWriter.
-func (s *packageWriter) PackfileWriterWithProgress(pc *progress.ProgressCollector) (io.WriteCloser, error) {
+func (s *packageWriter) PackfileWriterWithProgress(pc *progress.Collector) (io.WriteCloser, error) {
 	return s.pw.PackfileWriterWithProgress(pc)
 }

@@ -51,7 +51,7 @@ func (s *SuiteDotGit) TestNewObjectPack(c *C) {
 
 	pf, err := fs.Open(pfPath)
 	c.Assert(err, IsNil)
-	pfs := packfile.NewScanner(pf, nil)
+	pfs := packfile.NewScanner(pf)
 	_, objects, err := pfs.Header()
 	c.Assert(err, IsNil)
 	for i := uint32(0); i < objects; i++ {

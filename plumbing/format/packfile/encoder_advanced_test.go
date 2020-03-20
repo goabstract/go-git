@@ -94,7 +94,7 @@ func (s *EncoderAdvancedSuite) testEncodeDecode(
 	c.Assert(err, IsNil)
 
 	w := new(idxfile.Writer)
-	parser, err := NewParser(NewScanner(f, nil), w)
+	parser, err := NewParser(NewScanner(f), w)
 	c.Assert(err, IsNil)
 
 	_, err = parser.Parse()

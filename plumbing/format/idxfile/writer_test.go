@@ -22,7 +22,7 @@ var _ = Suite(&WriterSuite{})
 
 func (s *WriterSuite) TestWriter(c *C) {
 	f := fixtures.Basic().One()
-	scanner := packfile.NewScanner(f.Packfile(), nil)
+	scanner := packfile.NewScanner(f.Packfile())
 
 	obs := new(idxfile.Writer)
 	parser, err := packfile.NewParser(scanner, obs)
