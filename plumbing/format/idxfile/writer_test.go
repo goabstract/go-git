@@ -10,8 +10,8 @@ import (
 	"github.com/goabstract/go-git/v5/plumbing/format/idxfile"
 	"github.com/goabstract/go-git/v5/plumbing/format/packfile"
 
-	fixtures "github.com/goabstract/go-git-fixtures"
 	. "gopkg.in/check.v1"
+	"github.com/goabstract/go-git-fixtures"
 )
 
 type WriterSuite struct {
