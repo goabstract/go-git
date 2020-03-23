@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/goabstract/go-git"
-	. "github.com/goabstract/go-git/_examples"
+	"github.com/goabstract/go-git/v5"
+	. "github.com/goabstract/go-git/v5/_examples"
 )
 
 // Basic example of how to clone a repository using clone options.

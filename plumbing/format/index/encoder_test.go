@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/goabstract/go-git/v5/plumbing"
 	"github.com/google/go-cmp/cmp"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git/plumbing"
 )
 
 func (s *IndexSuite) TestEncode(c *C) {

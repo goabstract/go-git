@@ -1,6 +1,6 @@
 # go-git + aerospike: a git repository backed by a database
 
-<img src="https://upload.wikimedia.org/wikipedia/en/2/2b/Aerospike_logo.png" align="right"/> This is an example of a [go-git](https://github.com/src-d/go-git) repository backed by [Aerospike](http://www.aerospike.com/). 
+<img src="https://upload.wikimedia.org/wikipedia/en/2/2b/Aerospike_logo.png" align="right"/> This is an example of a [go-git](https://github.com/src-d/go-git) repository backed by [Aerospike](http://www.aerospike.com/).
 
 
 
@@ -8,7 +8,7 @@
 ### and what this means ...
 *git* has a very well defined storage system, the `.git` directory, present on any repository. This is the place where `git` stores all the [`objects`](https://git-scm.com/book/en/v2/Git-Internals-Git-Objects), [`references`](https://git-scm.com/book/es/v2/Git-Internals-Git-References) and [`configuration`](https://git-scm.com/docs/git-config#_configuration_file). This information is stored in plain files.
 
-Our original **go-git** version was designed to work in memory, some time after we added support to read the `.git`, and now we have added support for fully customized [storages](https://godoc.org/github.com/goabstract/go-git/storage#Storer).
+Our original **go-git** version was designed to work in memory, some time after we added support to read the `.git`, and now we have added support for fully customized [storages](https://godoc.org/github.com/goabstract/go-git/v5/storage#Storer).
 
 This means that the internal database of any repository can be saved and accessed on any support, databases, distributed filesystems, etc. This functionality is pretty similar to the [libgit2 backends](http://blog.deveo.com/your-git-repository-in-a-database-pluggable-backends-in-libgit2/)
 

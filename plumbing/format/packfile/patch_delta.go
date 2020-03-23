@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/goabstract/go-git/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing"
 )
 
 // See https://github.com/git/git/blob/49fa3dc76179e04b0833542fa52d0f287a4955ac/delta.h
@@ -43,7 +43,6 @@ func ApplyDelta(target, base plumbing.EncodedObject, delta []byte) error {
 	if err != nil {
 		return err
 	}
-
 
 	target.SetSize(int64(dst.Len()))
 
@@ -108,7 +107,7 @@ func patchDelta(dst *bytes.Buffer, src, delta []byte) error {
 				invalidOffsetSize(offset, sz, srcSz) {
 				break
 			}
-			dst.Write(src[offset:offset+sz])
+			dst.Write(src[offset : offset+sz])
 			remainingTargetSz -= sz
 		} else if isCopyFromDelta(cmd) {
 			sz := uint(cmd) // cmd is the size itself

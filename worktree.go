@@ -11,18 +11,18 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/goabstract/go-git/config"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/filemode"
-	"github.com/goabstract/go-git/plumbing/format/gitignore"
-	"github.com/goabstract/go-git/plumbing/format/index"
-	"github.com/goabstract/go-git/plumbing/object"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/utils/ioutil"
-	"github.com/goabstract/go-git/utils/merkletrie"
+	"github.com/goabstract/go-git/v5/config"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/filemode"
+	"github.com/goabstract/go-git/v5/plumbing/format/gitignore"
+	"github.com/goabstract/go-git/v5/plumbing/format/index"
+	"github.com/goabstract/go-git/v5/plumbing/object"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/utils/ioutil"
+	"github.com/goabstract/go-git/v5/utils/merkletrie"
 
-	"gopkg.in/src-d/go-billy.v4"
-	"gopkg.in/src-d/go-billy.v4/util"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/util"
 )
 
 var (

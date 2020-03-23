@@ -5,11 +5,11 @@ package client
 import (
 	"fmt"
 
-	"github.com/goabstract/go-git/plumbing/transport"
-	"github.com/goabstract/go-git/plumbing/transport/file"
-	"github.com/goabstract/go-git/plumbing/transport/git"
-	"github.com/goabstract/go-git/plumbing/transport/http"
-	"github.com/goabstract/go-git/plumbing/transport/ssh"
+	"github.com/goabstract/go-git/v5/plumbing/transport"
+	"github.com/goabstract/go-git/v5/plumbing/transport/file"
+	"github.com/goabstract/go-git/v5/plumbing/transport/git"
+	"github.com/goabstract/go-git/v5/plumbing/transport/http"
+	"github.com/goabstract/go-git/v5/plumbing/transport/ssh"
 )
 
 // Protocols are the protocols supported by default.

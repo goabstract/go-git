@@ -12,13 +12,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/goabstract/go-git/plumbing/transport"
-	"github.com/goabstract/go-git/plumbing/transport/test"
+	"github.com/goabstract/go-git/v5/plumbing/transport"
+	"github.com/goabstract/go-git/v5/plumbing/transport/test"
 
 	"github.com/gliderlabs/ssh"
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	stdssh "golang.org/x/crypto/ssh"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type UploadPackSuite struct {
@@ -32,8 +32,6 @@ type UploadPackSuite struct {
 var _ = Suite(&UploadPackSuite{})
 
 func (s *UploadPackSuite) SetUpSuite(c *C) {
-	s.Suite.SetUpSuite(c)
-
 	l, err := net.Listen("tcp", "localhost:0")
 	c.Assert(err, IsNil)
 

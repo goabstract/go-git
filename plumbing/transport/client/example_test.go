@@ -4,8 +4,8 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/goabstract/go-git/plumbing/transport/client"
-	githttp "github.com/goabstract/go-git/plumbing/transport/http"
+	"github.com/goabstract/go-git/v5/plumbing/transport/client"
+	githttp "github.com/goabstract/go-git/v5/plumbing/transport/http"
 )
 
 func ExampleInstallProtocol() {

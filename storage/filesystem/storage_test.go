@@ -4,13 +4,13 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/storage/test"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/storage/test"
 
+	"github.com/go-git/go-billy/v5/memfs"
+	"github.com/go-git/go-billy/v5/osfs"
 	. "gopkg.in/check.v1"
-	"gopkg.in/src-d/go-billy.v4/memfs"
-	"gopkg.in/src-d/go-billy.v4/osfs"
 )
 
 func Test(t *testing.T) { TestingT(t) }
@@ -39,7 +39,6 @@ func setUpTest(s *StorageSuite, c *C, storage *Storage) {
 	var _ storer.PackfileWriter = storage
 
 	s.BaseStorageSuite = test.NewBaseStorageSuite(storage)
-	s.BaseStorageSuite.SetUpTest(c)
 }
 
 func (s *StorageSuite) TestFilesystem(c *C) {

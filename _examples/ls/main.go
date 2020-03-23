@@ -8,17 +8,17 @@ import (
 	"strings"
 
 	"github.com/emirpasic/gods/trees/binaryheap"
-	"github.com/goabstract/go-git"
-	. "github.com/goabstract/go-git/_examples"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
-	commitgraph_fmt "github.com/goabstract/go-git/plumbing/format/commitgraph"
-	"github.com/goabstract/go-git/plumbing/object"
-	"github.com/goabstract/go-git/plumbing/object/commitgraph"
-	"github.com/goabstract/go-git/storage/filesystem"
+	"github.com/goabstract/go-git/v5"
+	. "github.com/goabstract/go-git/v5/_examples"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	commitgraph_fmt "github.com/goabstract/go-git/v5/plumbing/format/commitgraph"
+	"github.com/goabstract/go-git/v5/plumbing/object"
+	"github.com/goabstract/go-git/v5/plumbing/object/commitgraph"
+	"github.com/goabstract/go-git/v5/storage/filesystem"
 
-	"gopkg.in/src-d/go-billy.v4"
-	"gopkg.in/src-d/go-billy.v4/osfs"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/osfs"
 )
 
 // Example how to resolve a revision into its commit counterpart

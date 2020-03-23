@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/goabstract/go-git/internal/url"
-	format "github.com/goabstract/go-git/plumbing/format/config"
+	"github.com/goabstract/go-git/v5/internal/url"
+	format "github.com/goabstract/go-git/v5/plumbing/format/config"
 )
 
 const (

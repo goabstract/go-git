@@ -5,16 +5,16 @@ import (
 	"os"
 	"time"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/plumbing/format/idxfile"
-	"github.com/goabstract/go-git/plumbing/format/objfile"
-	"github.com/goabstract/go-git/plumbing/format/packfile"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/storage/filesystem/dotgit"
-	"github.com/goabstract/go-git/utils/ioutil"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/format/idxfile"
+	"github.com/goabstract/go-git/v5/plumbing/format/objfile"
+	"github.com/goabstract/go-git/v5/plumbing/format/packfile"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/storage/filesystem/dotgit"
+	"github.com/goabstract/go-git/v5/utils/ioutil"
 
-	"gopkg.in/src-d/go-billy.v4"
+	"github.com/go-git/go-billy/v5"
 )
 
 type ObjectStorage struct {

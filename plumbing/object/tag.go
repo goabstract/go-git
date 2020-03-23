@@ -10,9 +10,9 @@ import (
 
 	"golang.org/x/crypto/openpgp"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/utils/ioutil"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/utils/ioutil"
 )
 
 // Tag represents an annotated tag object. It points to a single git object of

@@ -7,8 +7,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/utils/binary"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/utils/binary"
 )
 
 var (

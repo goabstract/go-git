@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/storage/filesystem/dotgit"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/storage/filesystem/dotgit"
 
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type FsSuite struct {
@@ -248,7 +248,7 @@ func (s *FsSuite) TestPackfileReindex(c *C) {
 	packFixture := fixtures.ByTag("packfile").ByTag("standalone").One()
 	packFile := packFixture.Packfile()
 	idxFile := packFixture.Idx()
-	packFilename := packFixture.PackfileHash.String()
+	packFilename := packFixture.PackfileHash
 	testObjectHash := plumbing.NewHash("a771b1e94141480861332fd0e4684d33071306c6") // this is an object we know exists in the standalone packfile
 	fixtures.ByTag(".git").Test(c, func(f *fixtures.Fixture) {
 		fs := f.DotGit()
@@ -333,15 +333,7 @@ func (s *FsSuite) TestGetFromObjectFileSharedCache(c *C) {
 }
 
 func BenchmarkPackfileIter(b *testing.B) {
-	if err := fixtures.Init(); err != nil {
-		b.Fatal(err)
-	}
-
-	defer func() {
-		if err := fixtures.Clean(); err != nil {
-			b.Fatal(err)
-		}
-	}()
+	defer fixtures.Clean()
 
 	for _, f := range fixtures.ByTag(".git") {
 		b.Run(f.URL, func(b *testing.B) {
@@ -389,15 +381,7 @@ func BenchmarkPackfileIter(b *testing.B) {
 }
 
 func BenchmarkPackfileIterReadContent(b *testing.B) {
-	if err := fixtures.Init(); err != nil {
-		b.Fatal(err)
-	}
-
-	defer func() {
-		if err := fixtures.Clean(); err != nil {
-			b.Fatal(err)
-		}
-	}()
+	defer fixtures.Clean()
 
 	for _, f := range fixtures.ByTag(".git") {
 		b.Run(f.URL, func(b *testing.B) {
@@ -455,15 +439,7 @@ func BenchmarkPackfileIterReadContent(b *testing.B) {
 }
 
 func BenchmarkGetObjectFromPackfile(b *testing.B) {
-	if err := fixtures.Init(); err != nil {
-		b.Fatal(err)
-	}
-
-	defer func() {
-		if err := fixtures.Clean(); err != nil {
-			b.Fatal(err)
-		}
-	}()
+	defer fixtures.Clean()
 
 	for _, f := range fixtures.Basic() {
 		b.Run(f.URL, func(b *testing.B) {

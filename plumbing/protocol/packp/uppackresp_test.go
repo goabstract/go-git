@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"io/ioutil"
 
-	"github.com/goabstract/go-git/plumbing/protocol/packp/capability"
+	"github.com/goabstract/go-git/v5/plumbing/protocol/packp/capability"
 
+	"github.com/goabstract/go-git/v5/plumbing"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git/plumbing"
 )
 
 type UploadPackResponseSuite struct{}

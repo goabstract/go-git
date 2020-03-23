@@ -6,8 +6,8 @@ import (
 	"io"
 	"sync"
 
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/utils/ioutil"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/utils/ioutil"
 )
 
 var signature = []byte{'P', 'A', 'C', 'K'}

@@ -13,20 +13,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goabstract/go-git/config"
-	"github.com/goabstract/go-git/internal/revision"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/cache"
-	"github.com/goabstract/go-git/plumbing/format/packfile"
-	"github.com/goabstract/go-git/plumbing/object"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/storage"
-	"github.com/goabstract/go-git/storage/filesystem"
-	"github.com/goabstract/go-git/utils/ioutil"
+	"github.com/goabstract/go-git/v5/config"
+	"github.com/goabstract/go-git/v5/internal/revision"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/format/packfile"
+	"github.com/goabstract/go-git/v5/plumbing/object"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/storage"
+	"github.com/goabstract/go-git/v5/storage/filesystem"
+	"github.com/goabstract/go-git/v5/utils/ioutil"
 	"golang.org/x/crypto/openpgp"
 
-	"gopkg.in/src-d/go-billy.v4"
-	"gopkg.in/src-d/go-billy.v4/osfs"
+	"github.com/go-git/go-billy/v5"
+	"github.com/go-git/go-billy/v5/osfs"
 )
 
 // GitDirName this is a special folder where all the git stuff is.
@@ -1089,6 +1089,9 @@ func (r *Repository) Log(o *LogOptions) (object.CommitIter, error) {
 		// for `git log --all` also check parent (if the next commit comes from the real parent)
 		it = r.logWithFile(*o.FileName, it, o.All)
 	}
+	if o.PathFilter != nil {
+		it = r.logWithPathFilter(o.PathFilter, it, o.All)
+	}
 
 	if o.Since != nil || o.Until != nil {
 		limitOptions := object.LogLimitOptions{Since: o.Since, Until: o.Until}
@@ -1121,7 +1124,21 @@ func (r *Repository) logAll(commitIterFunc func(*object.Commit) object.CommitIte
 }
 
 func (*Repository) logWithFile(fileName string, commitIter object.CommitIter, checkParent bool) object.CommitIter {
-	return object.NewCommitFileIterFromIter(fileName, commitIter, checkParent)
+	return object.NewCommitPathIterFromIter(
+		func(path string) bool {
+			return path == fileName
+		},
+		commitIter,
+		checkParent,
+	)
+}
+
+func (*Repository) logWithPathFilter(pathFilter func(string) bool, commitIter object.CommitIter, checkParent bool) object.CommitIter {
+	return object.NewCommitPathIterFromIter(
+		pathFilter,
+		commitIter,
+		checkParent,
+	)
 }
 
 func (*Repository) logWithLimit(commitIter object.CommitIter, limitOptions object.LogLimitOptions) object.CommitIter {

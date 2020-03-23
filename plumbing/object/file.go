@@ -5,10 +5,10 @@ import (
 	"io"
 	"strings"
 
-	"github.com/goabstract/go-git/plumbing/filemode"
-	"github.com/goabstract/go-git/plumbing/storer"
-	"github.com/goabstract/go-git/utils/binary"
-	"github.com/goabstract/go-git/utils/ioutil"
+	"github.com/goabstract/go-git/v5/plumbing/filemode"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/utils/binary"
+	"github.com/goabstract/go-git/v5/utils/ioutil"
 )
 
 // File represents git file objects.

@@ -1,8 +1,8 @@
 package config
 
 import (
+	"github.com/goabstract/go-git/v5/plumbing"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git/plumbing"
 )
 
 type BranchSuite struct{}

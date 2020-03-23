@@ -4,13 +4,13 @@ import (
 	"io"
 	"testing"
 
-	git "github.com/goabstract/go-git"
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/format/packfile"
-	"github.com/goabstract/go-git/plumbing/storer"
+	git "github.com/goabstract/go-git/v5"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/format/packfile"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
 
+	fixtures "github.com/go-git/go-git-fixtures/v4"
 	. "gopkg.in/check.v1"
-	"github.com/goabstract/go-git-fixtures"
 )
 
 type ParserSuite struct {
@@ -106,7 +106,7 @@ func (s *ParserSuite) TestThinPack(c *C) {
 	w.Close()
 
 	// Check that the test object that will come with our thin pack is *not* in the repo
-	_, err = fs.Storer.EncodedObject(plumbing.CommitObject, thinpack.Head)
+	_, err = fs.Storer.EncodedObject(plumbing.CommitObject, plumbing.NewHash(thinpack.Head))
 	c.Assert(err, Equals, plumbing.ErrObjectNotFound)
 
 	// Now unpack the thin pack:
@@ -119,7 +119,7 @@ func (s *ParserSuite) TestThinPack(c *C) {
 	c.Assert(h, Equals, plumbing.NewHash("1288734cbe0b95892e663221d94b95de1f5d7be8"))
 
 	// Check that our test object is now accessible
-	_, err = fs.Storer.EncodedObject(plumbing.CommitObject, thinpack.Head)
+	_, err = fs.Storer.EncodedObject(plumbing.CommitObject, plumbing.NewHash(thinpack.Head))
 	c.Assert(err, IsNil)
 
 }
@@ -192,15 +192,7 @@ func (t *testObserver) put(pos int64, o observerObject) {
 }
 
 func BenchmarkParse(b *testing.B) {
-	if err := fixtures.Init(); err != nil {
-		b.Fatal(err)
-	}
-
-	defer func() {
-		if err := fixtures.Clean(); err != nil {
-			b.Fatal(err)
-		}
-	}()
+	defer fixtures.Clean()
 
 	for _, f := range fixtures.ByTag("packfile") {
 		b.Run(f.URL, func(b *testing.B) {
@@ -220,15 +212,7 @@ func BenchmarkParse(b *testing.B) {
 }
 
 func BenchmarkParseBasic(b *testing.B) {
-	if err := fixtures.Init(); err != nil {
-		b.Fatal(err)
-	}
-
-	defer func() {
-		if err := fixtures.Clean(); err != nil {
-			b.Fatal(err)
-		}
-	}()
+	defer fixtures.Clean()
 
 	f := fixtures.Basic().One()
 	for i := 0; i < b.N; i++ {

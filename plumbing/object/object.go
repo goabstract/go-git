@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/goabstract/go-git/plumbing"
-	"github.com/goabstract/go-git/plumbing/storer"
+	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
 )
 
 // ErrUnsupportedObject trigger when a non-supported object is being decoded.
@@ -138,17 +138,19 @@ func (s *Signature) decodeTimeAndTimeZone(b []byte) {
 		return
 	}
 
-	// Include a dummy year in this time.Parse() call to avoid a bug in Go:
-	// https://github.com/golang/go/issues/19750
-	//
-	// Parsing the timezone with no other details causes the tl.Location() call
-	// below to return time.Local instead of the parsed zone in some cases
-	tl, err := time.Parse("2006 -0700", "1970 "+string(b[tzStart:tzStart+timeZoneLength]))
-	if err != nil {
+	timezone := string(b[tzStart : tzStart+timeZoneLength])
+	tzhours, err1 := strconv.ParseInt(timezone[0:3], 10, 64)
+	tzmins, err2 := strconv.ParseInt(timezone[3:], 10, 64)
+	if err1 != nil || err2 != nil {
 		return
 	}
+	if tzhours < 0 {
+		tzmins *= -1
+	}
 
-	s.When = s.When.In(tl.Location())
+	tz := time.FixedZone("", int(tzhours*60*60+tzmins*60))
+
+	s.When = s.When.In(tz)
 }
 
 func (s *Signature) encodeTimeAndTimeZone(w io.Writer) error {
