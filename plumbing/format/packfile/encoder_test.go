@@ -300,7 +300,7 @@ func packfileFromReader(c *C, buf *bytes.Buffer) (*Packfile, func()) {
 	_, err = file.Seek(0, io.SeekStart)
 	c.Assert(err, IsNil)
 
-	scanner := NewScanner(file)
+	scanner := NewScanner(file, nil)
 
 	w := new(idxfile.Writer)
 	p, err := NewParser(scanner, w)

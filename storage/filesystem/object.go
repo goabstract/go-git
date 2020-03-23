@@ -93,7 +93,7 @@ func (s *ObjectStorage) NewEncodedObject() plumbing.EncodedObject {
 	return &plumbing.MemoryObject{}
 }
 
-func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
+func (s *ObjectStorage) packfileWriter(progress storer.ProgressParsePackfile) (io.WriteCloser, error) {
 	if err := s.requireIndex(); err != nil {
 		return nil, err
 	}
@@ -103,6 +103,8 @@ func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
 		return nil, err
 	}
 
+	w.Progress = progress
+
 	w.Notify = func(h plumbing.Hash, writer *idxfile.Writer) {
 		index, err := writer.Index()
 		if err == nil {
@@ -111,6 +113,16 @@ func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
 	}
 
 	return w, nil
+}
+
+// PackfileWriter honors storage.PackfileWriter.
+func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
+	return s.packfileWriter(nil)
+}
+
+// PackfileWriterWithProgress honors storage.PackfileWriter.
+func (s *ObjectStorage) PackfileWriterWithProgress(progress storer.ProgressParsePackfile) (io.WriteCloser, error) {
+	return s.packfileWriter(progress)
 }
 
 // SetEncodedObject adds a new object to the storage.

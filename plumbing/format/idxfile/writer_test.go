@@ -10,6 +10,7 @@ import (
 	"github.com/goabstract/go-git/v5/plumbing/format/idxfile"
 	"github.com/goabstract/go-git/v5/plumbing/format/packfile"
 
+	fixtures "github.com/goabstract/go-git-fixtures"
 	. "gopkg.in/check.v1"
 )
 
@@ -21,7 +22,7 @@ var _ = Suite(&WriterSuite{})
 
 func (s *WriterSuite) TestWriter(c *C) {
 	f := fixtures.Basic().One()
-	scanner := packfile.NewScanner(f.Packfile())
+	scanner := packfile.NewScanner(f.Packfile(), nil)
 
 	obs := new(idxfile.Writer)
 	parser, err := packfile.NewParser(scanner, obs)

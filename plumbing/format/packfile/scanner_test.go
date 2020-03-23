@@ -18,7 +18,7 @@ var _ = Suite(&ScannerSuite{})
 
 func (s *ScannerSuite) TestHeader(c *C) {
 	r := fixtures.Basic().One().Packfile()
-	p := NewScanner(r)
+	p := NewScanner(r, nil)
 
 	version, objects, err := p.Header()
 	c.Assert(err, IsNil)
@@ -28,7 +28,7 @@ func (s *ScannerSuite) TestHeader(c *C) {
 
 func (s *ScannerSuite) TestNextObjectHeaderWithoutHeader(c *C) {
 	r := fixtures.Basic().One().Packfile()
-	p := NewScanner(r)
+	p := NewScanner(r, nil)
 
 	h, err := p.NextObjectHeader()
 	c.Assert(err, IsNil)
@@ -52,7 +52,7 @@ func (s *ScannerSuite) testNextObjectHeader(c *C, tag string,
 	expected []ObjectHeader, expectedCRC []uint32) {
 
 	r := fixtures.Basic().ByTag(tag).One().Packfile()
-	p := NewScanner(r)
+	p := NewScanner(r, nil)
 
 	_, objects, err := p.Header()
 	c.Assert(err, IsNil)
@@ -77,7 +77,7 @@ func (s *ScannerSuite) testNextObjectHeader(c *C, tag string,
 func (s *ScannerSuite) TestNextObjectHeaderWithOutReadObject(c *C) {
 	f := fixtures.Basic().ByTag("ref-delta").One()
 	r := f.Packfile()
-	p := NewScanner(r)
+	p := NewScanner(r, nil)
 
 	_, objects, err := p.Header()
 	c.Assert(err, IsNil)
@@ -99,7 +99,7 @@ func (s *ScannerSuite) TestNextObjectHeaderWithOutReadObject(c *C) {
 func (s *ScannerSuite) TestNextObjectHeaderWithOutReadObjectNonSeekable(c *C) {
 	f := fixtures.Basic().ByTag("ref-delta").One()
 	r := io.MultiReader(f.Packfile())
-	p := NewScanner(r)
+	p := NewScanner(r, nil)
 
 	_, objects, err := p.Header()
 	c.Assert(err, IsNil)
@@ -120,7 +120,7 @@ func (s *ScannerSuite) TestNextObjectHeaderWithOutReadObjectNonSeekable(c *C) {
 
 func (s *ScannerSuite) TestSeekObjectHeader(c *C) {
 	r := fixtures.Basic().One().Packfile()
-	p := NewScanner(r)
+	p := NewScanner(r, nil)
 
 	h, err := p.SeekObjectHeader(expectedHeadersOFS[4].Offset)
 	c.Assert(err, IsNil)
@@ -129,7 +129,7 @@ func (s *ScannerSuite) TestSeekObjectHeader(c *C) {
 
 func (s *ScannerSuite) TestSeekObjectHeaderNonSeekable(c *C) {
 	r := io.MultiReader(fixtures.Basic().One().Packfile())
-	p := NewScanner(r)
+	p := NewScanner(r, nil)
 
 	_, err := p.SeekObjectHeader(expectedHeadersOFS[4].Offset)
 	c.Assert(err, Equals, ErrSeekNotSupported)
@@ -137,7 +137,7 @@ func (s *ScannerSuite) TestSeekObjectHeaderNonSeekable(c *C) {
 
 func (s *ScannerSuite) TestReaderReset(c *C) {
 	r := fixtures.Basic().One().Packfile()
-	p := NewScanner(r)
+	p := NewScanner(r, nil)
 
 	version, objects, err := p.Header()
 	c.Assert(err, IsNil)
@@ -163,7 +163,7 @@ func (s *ScannerSuite) TestReaderResetSeeks(c *C) {
 	r := fixtures.Basic().One().Packfile()
 
 	// seekable
-	p := NewScanner(r)
+	p := NewScanner(r, nil)
 	c.Assert(p.IsSeekable, Equals, true)
 	h, err := p.SeekObjectHeader(expectedHeadersOFS[0].Offset)
 	c.Assert(err, IsNil)

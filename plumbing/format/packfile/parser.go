@@ -42,6 +42,7 @@ type Parser struct {
 	storage    storer.EncodedObjectStorer
 	scanner    *Scanner
 	count      uint32
+	deltasSeen uint32
 	oi         []*objectInfo
 	oiByHash   map[plumbing.Hash]*objectInfo
 	oiByOffset map[int64]*objectInfo
@@ -53,6 +54,8 @@ type Parser struct {
 	deltas map[int64][]byte
 
 	ob []Observer
+
+	Progress storer.ProgressParsePackfile
 }
 
 // NewParser creates a new Parser. The Scanner source must be seekable.
@@ -78,13 +81,31 @@ func NewParserWithStorage(
 	}
 
 	return &Parser{
-		storage: storage,
-		scanner: scanner,
-		ob:      ob,
-		count:   0,
-		cache:   cache.NewBufferLRUDefault(),
-		deltas:  deltas,
+		storage:    storage,
+		scanner:    scanner,
+		ob:         ob,
+		count:      0,
+		deltasSeen: 0,
+		cache:      cache.NewBufferLRUDefault(),
+		deltas:     deltas,
 	}, nil
+}
+
+func (p *Parser) writeProgress() {
+	if p.Progress == nil {
+		return
+	}
+
+	p.Progress(&storer.PackfileParseProgress{
+		Type:     plumbing.OFSDeltaObject,
+		Received: p.deltasSeen,
+		Total:    p.scanner.deltasTotal,
+		Done:     p.deltasSeen == p.scanner.deltasTotal,
+	})
+
+	if p.deltasSeen == p.scanner.deltasTotal {
+		p.Progress = nil
+	}
 }
 
 func (p *Parser) forEachObserver(f func(o Observer) error) error {
@@ -256,8 +277,14 @@ func (p *Parser) indexObjects() error {
 			copy(p.deltas[oh.Offset], data)
 		}
 
+		if delta {
+			p.scanner.deltasTotal++
+		}
+
 		p.oiByOffset[oh.Offset] = ota
 		p.oi[i] = ota
+		p.scanner.objectsSeen++
+		p.scanner.writeProgress()
 	}
 
 	return nil
@@ -271,6 +298,10 @@ func (p *Parser) resolveDeltas() error {
 		if err != nil {
 			return err
 		}
+
+		p.deltasSeen++
+		p.writeProgress()
+
 		content := buf.Bytes()
 
 		if err := p.onInflatedObjectHeader(obj.Type, obj.Length, obj.Offset); err != nil {
@@ -394,6 +425,7 @@ func (p *Parser) resolveObject(
 		}
 	}
 	_, err = w.Write(data)
+
 	return err
 }
 

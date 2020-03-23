@@ -98,3 +98,8 @@ func (s *basic) Commit() error {
 func (s *packageWriter) PackfileWriter() (io.WriteCloser, error) {
 	return s.pw.PackfileWriter()
 }
+
+// PackfileWriterWithProgress honors storage.PackfileWriter.
+func (s *packageWriter) PackfileWriterWithProgress(progress storer.ProgressParsePackfile) (io.WriteCloser, error) {
+	return s.pw.PackfileWriterWithProgress(progress)
+}

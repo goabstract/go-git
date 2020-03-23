@@ -2,6 +2,7 @@ package storer
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"time"
 
@@ -95,6 +96,29 @@ type PackfileWriter interface {
 	// If the Storer not implements PackfileWriter the objects should be written
 	// using the Set method.
 	PackfileWriter() (io.WriteCloser, error)
+	PackfileWriterWithProgress(ProgressParsePackfile) (io.WriteCloser, error)
+}
+
+type PackfileParseProgress struct {
+	Type     plumbing.ObjectType
+	Received uint32
+	Total    uint32
+	Done     bool
+}
+
+type ProgressParsePackfile func(*PackfileParseProgress)
+
+func (p *PackfileParseProgress) Percentage() float32 {
+	return 100 * (float32(p.Received) / float32(p.Total))
+}
+
+func (p *PackfileParseProgress) String() string {
+	if p.Type.IsDelta() {
+		return fmt.Sprintf("Resolving deltas: %d%% (%d/%d)",
+			uint32(p.Percentage()), p.Received, p.Total)
+	}
+	return fmt.Sprintf("Receiving objects: %d%% (%d/%d)",
+		uint32(p.Percentage()), p.Received, p.Total)
 }
 
 // EncodedObjectIter is a generic closable interface for iterating over objects.

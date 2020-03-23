@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/gobastract/go-git/v5/plumbing/storer"
 	"github.com/goabstract/go-git/v5/utils/binary"
 	"github.com/goabstract/go-git/v5/utils/ioutil"
 )
@@ -50,11 +51,16 @@ type Scanner struct {
 	// lsSeekable says if this scanner can do Seek or not, to have a Scanner
 	// seekable a r implementing io.Seeker is required
 	IsSeekable bool
+
+	// Progress is used to write client progress,  like Receiving objects:  84% (2079/2457)
+	Progress    storer.ProgressParsePackfile
+	objectsSeen uint32
+	deltasTotal uint32
 }
 
 // NewScanner returns a new Scanner based on a reader, if the given reader
 // implements io.ReadSeeker the Scanner will be also Seekable
-func NewScanner(r io.Reader) *Scanner {
+func NewScanner(r io.Reader, progress storer.ProgressParsePackfile) *Scanner {
 	_, ok := r.(io.ReadSeeker)
 
 	crc := crc32.NewIEEE()
@@ -62,6 +68,24 @@ func NewScanner(r io.Reader) *Scanner {
 		r:          newScannerReader(r, crc),
 		crc:        crc,
 		IsSeekable: ok,
+		Progress:   progress,
+	}
+}
+
+func (s *Scanner) writeProgress() {
+	if s.Progress == nil {
+		return
+	}
+
+	s.Progress(&storer.PackfileParseProgress{
+		Type:     plumbing.BlobObject,
+		Received: s.objectsSeen,
+		Total:    s.objects,
+		Done:     s.objectsSeen == s.objects,
+	})
+
+	if s.objectsSeen == s.objects {
+		s.Progress = nil
 	}
 }
 
@@ -74,6 +98,8 @@ func (s *Scanner) Reset(r io.Reader) {
 	s.pendingObject = nil
 	s.version = 0
 	s.objects = 0
+	s.objectsSeen = 0
+	s.deltasTotal = 0
 }
 
 // Header reads the whole packfile header (signature, version and object count).

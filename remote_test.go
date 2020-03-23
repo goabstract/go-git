@@ -391,6 +391,10 @@ func (m *mockPackfileWriter) PackfileWriter() (io.WriteCloser, error) {
 	return m.Storer.(storer.PackfileWriter).PackfileWriter()
 }
 
+func (m *mockPackfileWriter) PackfileWriterWithProgress(progress storer.ProgressParsePackfile) (io.WriteCloser, error) {
+	return m.PackfileWriter()
+}
+
 func (s *RemoteSuite) TestFetchWithPackfileWriter(c *C) {
 	dir, err := ioutil.TempDir("", "fetch")
 	c.Assert(err, IsNil)

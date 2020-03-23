@@ -10,6 +10,7 @@ import (
 
 	"github.com/goabstract/go-git/v5/plumbing"
 	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/storer"
 	"github.com/goabstract/go-git/v5/storage/filesystem/dotgit"
 
 	fixtures "github.com/go-git/go-git-fixtures/v4"
@@ -28,6 +29,8 @@ var objectTypes = []plumbing.ObjectType{
 }
 
 var _ = Suite(&FsSuite{})
+
+var _ = storer.PackfileWriter(&ObjectStorage{})
 
 func (s *FsSuite) TestGetFromObjectFile(c *C) {
 	fs := fixtures.ByTag(".git").ByTag("unpacked").One().DotGit()

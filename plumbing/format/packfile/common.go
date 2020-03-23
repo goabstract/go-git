@@ -26,12 +26,13 @@ const (
 
 // UpdateObjectStorage updates the storer with the objects in the given
 // packfile.
-func UpdateObjectStorage(s storer.Storer, packfile io.Reader) error {
+func UpdateObjectStorage(s storer.Storer, packfile io.Reader, progress storer.ProgressParsePackfile) error {
 	if pw, ok := s.(storer.PackfileWriter); ok {
-		return WritePackfileToObjectStorage(pw, packfile)
+		return WritePackfileToObjectStorage(pw, packfile, progress)
 	}
 
-	p, err := NewParserWithStorage(NewScanner(packfile), s)
+	p, err := NewParserWithStorage(NewScanner(packfile, progress), s)
+	p.Progress = progress
 	if err != nil {
 		return err
 	}
@@ -45,12 +46,12 @@ func UpdateObjectStorage(s storer.Storer, packfile io.Reader) error {
 func WritePackfileToObjectStorage(
 	sw storer.PackfileWriter,
 	packfile io.Reader,
+	progress storer.ProgressParsePackfile,
 ) (err error) {
-	w, err := sw.PackfileWriter()
+	w, err := sw.PackfileWriterWithProgress(progress)
 	if err != nil {
 		return err
 	}
-
 	defer ioutil.CheckClose(w, &err)
 
 	var n int64

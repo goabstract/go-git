@@ -13,6 +13,7 @@ import (
 	"github.com/goabstract/go-git/v5/storage/memory"
 	"github.com/goabstract/go-git/v5/utils/merkletrie"
 
+	fixtures "github.com/goabstract/go-git-fixtures"
 	. "gopkg.in/check.v1"
 )
 
@@ -49,7 +50,7 @@ func (s *DiffTreeSuite) storageFromPackfile(f *fixtures.Fixture) storer.EncodedO
 	pf := f.Packfile()
 	defer pf.Close()
 
-	if err := packfile.UpdateObjectStorage(storer, pf); err != nil {
+	if err := packfile.UpdateObjectStorage(storer, pf, nil); err != nil {
 		panic(err)
 	}
 

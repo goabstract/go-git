@@ -21,7 +21,7 @@ var _ = Suite(&ParserSuite{})
 
 func (s *ParserSuite) TestParserHashes(c *C) {
 	f := fixtures.Basic().One()
-	scanner := packfile.NewScanner(f.Packfile())
+	scanner := packfile.NewScanner(f.Packfile(), nil)
 
 	obs := new(testObserver)
 	parser, err := packfile.NewParser(scanner, obs)
@@ -86,7 +86,7 @@ func (s *ParserSuite) TestThinPack(c *C) {
 	// Try to parse a thin pack without having the required objects in the repo to
 	// see if the correct errors are returned
 	thinpack := fixtures.ByTag("thinpack").One()
-	scanner := packfile.NewScanner(thinpack.Packfile())
+	scanner := packfile.NewScanner(thinpack.Packfile(), nil)
 	parser, err := packfile.NewParserWithStorage(scanner, fs.Storer) // ParserWithStorage writes to the storer all parsed objects!
 	c.Assert(err, IsNil)
 
@@ -110,7 +110,7 @@ func (s *ParserSuite) TestThinPack(c *C) {
 	c.Assert(err, Equals, plumbing.ErrObjectNotFound)
 
 	// Now unpack the thin pack:
-	scanner = packfile.NewScanner(thinpack.Packfile())
+	scanner = packfile.NewScanner(thinpack.Packfile(), nil)
 	parser, err = packfile.NewParserWithStorage(scanner, fs.Storer) // ParserWithStorage writes to the storer all parsed objects!
 	c.Assert(err, IsNil)
 
@@ -197,7 +197,7 @@ func BenchmarkParse(b *testing.B) {
 	for _, f := range fixtures.ByTag("packfile") {
 		b.Run(f.URL, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				parser, err := packfile.NewParser(packfile.NewScanner(f.Packfile()))
+				parser, err := packfile.NewParser(packfile.NewScanner(f.Packfile(), nil))
 				if err != nil {
 					b.Fatal(err)
 				}
@@ -216,7 +216,7 @@ func BenchmarkParseBasic(b *testing.B) {
 
 	f := fixtures.Basic().One()
 	for i := 0; i < b.N; i++ {
-		parser, err := packfile.NewParser(packfile.NewScanner(f.Packfile()))
+		parser, err := packfile.NewParser(packfile.NewScanner(f.Packfile(), nil))
 		if err != nil {
 			b.Fatal(err)
 		}
