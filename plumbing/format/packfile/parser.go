@@ -43,7 +43,6 @@ type Parser struct {
 	storage    storer.EncodedObjectStorer
 	scanner    *Scanner
 	count      uint32
-	deltasSeen uint32
 	oi         []*objectInfo
 	oiByHash   map[plumbing.Hash]*objectInfo
 	oiByOffset map[int64]*objectInfo
@@ -56,7 +55,10 @@ type Parser struct {
 
 	ob []Observer
 
-	ProgressCollector *progress.ProgressCollector
+	ProgressCollector *progress.Collector
+	objectsSeen       uint32
+	deltasTotal       uint32
+	deltasSeen        uint32
 }
 
 // NewParser creates a new Parser. The Scanner source must be seekable.
@@ -92,12 +94,20 @@ func NewParserWithStorage(
 	}, nil
 }
 
-func (p *Parser) writeProgress() {
+func (p *Parser) writeDeltaProgress() {
 	if p.ProgressCollector == nil {
 		return
 	}
 
-	p.ProgressCollector.ResolveDelta(p.deltasSeen, p.scanner.deltasTotal)
+	p.ProgressCollector.ResolveDelta(p.deltasSeen, p.deltasTotal)
+}
+
+func (p *Parser) writeObjectProgress() {
+	if p.ProgressCollector == nil {
+		return
+	}
+
+	p.ProgressCollector.ReceiveObject(p.objectsSeen, p.count)
 }
 
 func (p *Parser) forEachObserver(f func(o Observer) error) error {
@@ -270,13 +280,13 @@ func (p *Parser) indexObjects() error {
 		}
 
 		if delta {
-			p.scanner.deltasTotal++
+			p.deltasTotal++
 		}
 
 		p.oiByOffset[oh.Offset] = ota
 		p.oi[i] = ota
-		p.scanner.objectsSeen++
-		p.scanner.writeProgress()
+		p.objectsSeen++
+		p.writeObjectProgress()
 	}
 
 	return nil
@@ -293,7 +303,7 @@ func (p *Parser) resolveDeltas() error {
 
 		if obj.DiskType.IsDelta() {
 			p.deltasSeen++
-			p.writeProgress()
+			p.writeDeltaProgress()
 		}
 
 		content := buf.Bytes()

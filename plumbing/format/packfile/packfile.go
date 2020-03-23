@@ -50,7 +50,7 @@ func NewPackfileWithCache(
 	file billy.File,
 	cache cache.Object,
 ) *Packfile {
-	s := NewScanner(file, nil)
+	s := NewScanner(file)
 	return &Packfile{
 		index,
 		fs,

@@ -58,7 +58,7 @@ type CloneOptions struct {
 	// no-progress, is sent to the server to avoid send this information.
 	Progress sideband.Progress
 	// ProgressReporter is where to get local updates on received objects and resolved deltas
-	ProgressReporter *progress.ProgressReporter
+	ProgressReporter *progress.Reporter
 	// Tags describe how the tags will be fetched from the remote repository,
 	// by default is AllTags.
 	Tags TagMode
@@ -105,7 +105,7 @@ type PullOptions struct {
 	// no-progress, is sent to the server to avoid send this information.
 	Progress sideband.Progress
 	// ProgressReporter is where to get local updates on received objects and resolved deltas
-	ProgressReporter *progress.ProgressReporter
+	ProgressReporter *progress.Reporter
 	// Force allows the pull to update a local branch even when the remote
 	// branch does not descend from it.
 	Force bool
@@ -156,7 +156,7 @@ type FetchOptions struct {
 	// no-progress, is sent to the server to avoid send this information.
 	Progress sideband.Progress
 	// ProgressReporter is where to get local updates on received objects and resolved deltas
-	ProgressReporter *progress.ProgressReporter
+	ProgressReporter *progress.Reporter
 	// Tags describe how the tags will be fetched from the remote repository,
 	// by default is TagFollowing.
 	Tags TagMode

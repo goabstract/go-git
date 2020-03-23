@@ -22,7 +22,7 @@ import (
 // location, if the PackWriter is not used, nothing is written
 type PackWriter struct {
 	Notify            func(plumbing.Hash, *idxfile.Writer)
-	ProgressCollector *progress.ProgressCollector
+	ProgressCollector *progress.Collector
 
 	fs       billy.Filesystem
 	fr, fw   billy.File
@@ -57,7 +57,7 @@ func newPackWrite(fs billy.Filesystem) (*PackWriter, error) {
 }
 
 func (w *PackWriter) buildIndex() {
-	s := packfile.NewScanner(w.synced, w.ProgressCollector)
+	s := packfile.NewScanner(w.synced)
 	w.writer = new(idxfile.Writer)
 	var err error
 	w.parser, err = packfile.NewParser(s, w.writer)

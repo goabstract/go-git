@@ -94,7 +94,7 @@ func (s *ObjectStorage) NewEncodedObject() plumbing.EncodedObject {
 	return &plumbing.MemoryObject{}
 }
 
-func (s *ObjectStorage) packfileWriter(pc *progress.ProgressCollector) (io.WriteCloser, error) {
+func (s *ObjectStorage) packfileWriter(pc *progress.Collector) (io.WriteCloser, error) {
 	if err := s.requireIndex(); err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
 }
 
 // PackfileWriterWithProgress honors storage.PackfileWriter.
-func (s *ObjectStorage) PackfileWriterWithProgress(pc *progress.ProgressCollector) (io.WriteCloser, error) {
+func (s *ObjectStorage) PackfileWriterWithProgress(pc *progress.Collector) (io.WriteCloser, error) {
 	return s.packfileWriter(pc)
 }
 

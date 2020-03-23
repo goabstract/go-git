@@ -6,29 +6,29 @@ import (
 	"time"
 )
 
-// CountingProgressUpdate holds the part and whole for calculating percentage of progress
-type CountingProgressUpdate struct {
+// CountingUpdate holds the part and whole for calculating percentage of progress
+type CountingUpdate struct {
 	Type  ProgressType
 	Count uint32
 	Max   uint32
 }
 
-// ProgressCollector collects data to send progress updates
-type ProgressCollector struct {
-	receiveObject chan *CountingProgressUpdate
-	resolveDelta  chan *CountingProgressUpdate
+// Collector collects data to send progress updates
+type Collector struct {
+	receiveObject chan *CountingUpdate
+	resolveDelta  chan *CountingUpdate
 	accumulate    chan int
 	Reader        io.Reader
 	seeker        io.Seeker
 	isSeekable    bool
-	pr            *ProgressReporter
+	pr            *Reporter
 }
 
-func NewProgressCollector(reader io.Reader, pr *ProgressReporter) *ProgressCollector {
+func NewCollector(reader io.Reader, pr *Reporter) *Collector {
 	seeker, ok := reader.(io.ReadSeeker)
-	return &ProgressCollector{
-		receiveObject: make(chan *CountingProgressUpdate),
-		resolveDelta:  make(chan *CountingProgressUpdate),
+	return &Collector{
+		receiveObject: make(chan *CountingUpdate),
+		resolveDelta:  make(chan *CountingUpdate),
 		accumulate:    make(chan int),
 		Reader:        reader,
 		seeker:        seeker,
@@ -38,10 +38,7 @@ func NewProgressCollector(reader io.Reader, pr *ProgressReporter) *ProgressColle
 }
 
 // Start begins a background process that will send periodic progress updates
-func (pc *ProgressCollector) Start(ctx context.Context) {
-	if pc == nil || pc.pr == nil {
-		return
-	}
+func (pc *Collector) Start(ctx context.Context) {
 	go func() {
 		defer close(pc.pr.Receive)
 
@@ -49,8 +46,8 @@ func (pc *ProgressCollector) Start(ctx context.Context) {
 		startedResolvingDeltas := false
 		doneReceivingObjects := false
 		doneResolvingDeltas := false
-		var lastObject *CountingProgressUpdate = nil
-		var lastDelta *CountingProgressUpdate = nil
+		var lastObject *CountingUpdate = nil
+		var lastDelta *CountingUpdate = nil
 
 		total := uint64(0)
 		rate := uint64(0)
@@ -63,8 +60,8 @@ func (pc *ProgressCollector) Start(ctx context.Context) {
 
 		sendReceivingObjects := func() {
 			if lastObject != nil && !doneReceivingObjects {
-				pc.pr.Receive <- &ProgressUpdate{
-					Type:          ProgressReceivingObjects,
+				pc.pr.Receive <- &Update{
+					Type:          ReceivingObjects,
 					Count:         lastObject.Count,
 					Max:           lastObject.Max,
 					BytesReceived: total,
@@ -79,8 +76,8 @@ func (pc *ProgressCollector) Start(ctx context.Context) {
 
 		sendResolvingDeltas := func() {
 			if lastDelta != nil && !doneResolvingDeltas {
-				pc.pr.Receive <- &ProgressUpdate{
-					Type:  ProgressResolvingDeltas,
+				pc.pr.Receive <- &Update{
+					Type:  ResolvingDeltas,
 					Count: lastDelta.Count,
 					Max:   lastDelta.Max,
 				}
@@ -124,31 +121,31 @@ func (pc *ProgressCollector) Start(ctx context.Context) {
 }
 
 // ReceiveObject sends an object to the background process to be tracked
-func (pc *ProgressCollector) ReceiveObject(count, max uint32) {
-	pc.receiveObject <- &CountingProgressUpdate{
-		Type:  ProgressReceivingObjects,
+func (pc *Collector) ReceiveObject(count, max uint32) {
+	pc.receiveObject <- &CountingUpdate{
+		Type:  ReceivingObjects,
 		Count: count,
 		Max:   max,
 	}
 }
 
 // ResolveDelta sends an object to the background process to be tracked
-func (pc *ProgressCollector) ResolveDelta(count, max uint32) {
-	pc.resolveDelta <- &CountingProgressUpdate{
-		Type:  ProgressResolvingDeltas,
+func (pc *Collector) ResolveDelta(count, max uint32) {
+	pc.resolveDelta <- &CountingUpdate{
+		Type:  ResolvingDeltas,
 		Count: count,
 		Max:   max,
 	}
 }
 
 // Read satisfies the io.Reader interface; sends bytes read to the background process to be tracked
-func (pc *ProgressCollector) Read(b []byte) (int, error) {
+func (pc *Collector) Read(b []byte) (int, error) {
 	bytesRead, err := pc.Reader.Read(b)
 	pc.accumulate <- bytesRead
 	return bytesRead, err
 }
 
 // Seeker satisfies the io.Seeker interface
-func (pc *ProgressCollector) Seek(offset int64, whence int) (int64, error) {
+func (pc *Collector) Seek(offset int64, whence int) (int64, error) {
 	return pc.seeker.Seek(offset, whence)
 }

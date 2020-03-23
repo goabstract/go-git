@@ -28,27 +28,29 @@ const (
 
 // UpdateObjectStorage updates the storer with the objects in the given
 // packfile.
-func UpdateObjectStorage(s storer.Storer, packfile io.Reader, pr *progress.ProgressReporter) error {
+func UpdateObjectStorage(s storer.Storer, packfile io.Reader, pr *progress.Reporter) error {
 	reader := packfile
-	var pc *progress.ProgressCollector = nil
-	ctx, cancel := context.WithCancel(context.Background())
+	var pc *progress.Collector = nil
 	if pr != nil {
-		pc = progress.NewProgressCollector(packfile, pr)
+		pc = progress.NewCollector(packfile, pr)
 		reader = pc
 	}
 	if pw, ok := s.(storer.PackfileWriter); ok {
-		pc.Start(ctx)
-		defer func() {
-			cancel()
-		}()
+		if pc != nil {
+			ctx, cancel := context.WithCancel(context.Background())
+			pc.Start(ctx)
+			defer cancel()
+		}
+
 		return WritePackfileToObjectStorage(pw, reader, pc)
 	}
 
-	pc.Start(ctx)
-	defer func() {
-		cancel()
-	}()
-	p, err := NewParserWithStorage(NewScanner(reader, pc), s)
+	if pc != nil {
+		ctx, cancel := context.WithCancel(context.Background())
+		pc.Start(ctx)
+		defer cancel()
+	}
+	p, err := NewParserWithStorage(NewScanner(reader), s)
 	p.ProgressCollector = pc
 	if err != nil {
 		return err
@@ -63,7 +65,7 @@ func UpdateObjectStorage(s storer.Storer, packfile io.Reader, pr *progress.Progr
 func WritePackfileToObjectStorage(
 	sw storer.PackfileWriter,
 	packfile io.Reader,
-	pc *progress.ProgressCollector,
+	pc *progress.Collector,
 ) (err error) {
 	w, err := sw.PackfileWriterWithProgress(pc)
 	if err != nil {

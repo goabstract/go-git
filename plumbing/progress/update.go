@@ -14,8 +14,8 @@ const (
 	// ScaleBiB is the base scale for representing a number of bytes
 	ScaleBiB = IECScale(1)
 
-	ProgressReceivingObjects ProgressType = iota
-	ProgressResolvingDeltas
+	ReceivingObjects ProgressType = iota
+	ResolvingDeltas
 )
 
 // IECScale is a number used to represent bytes at various scales (GiB, MiB, KiB, bytes)
@@ -24,8 +24,8 @@ type IECScale uint64
 // ProgressType is the type of progress update being sent
 type ProgressType int
 
-// ProgressUpdate is what the consuming code will get notified with
-type ProgressUpdate struct {
+// Update is what the consuming code will get notified with
+type Update struct {
 	Type          ProgressType
 	Count         uint32
 	Max           uint32
@@ -34,26 +34,26 @@ type ProgressUpdate struct {
 }
 
 // Percentage calculates the completion percentage
-func (p *ProgressUpdate) Percentage() float32 {
+func (p *Update) Percentage() float32 {
 	return 100 * float32(p.Count) / float32(p.Max)
 }
 
 // BytesReceivedIEC returns the IEC representation of BytesReceived, e.g. GiB, MiB, KiB
-func (p *ProgressUpdate) BytesReceivedIEC() string {
+func (p *Update) BytesReceivedIEC() string {
 	return ToIECString(p.BytesReceived)
 }
 
 // RateIEC returns the IEC representation of Rate, e.g. GiB/s, MiB/s, KiB/s
-func (p *ProgressUpdate) RateIEC() string {
+func (p *Update) RateIEC() string {
 	return fmt.Sprintf("%s/s", ToIECString(p.Rate<<10))
 }
 
 // String honors the Stringer interface
-func (p *ProgressUpdate) String() string {
+func (p *Update) String() string {
 	t := ""
-	if p.Type == ProgressReceivingObjects {
+	if p.Type == ReceivingObjects {
 		t = "Receiving objects"
-	} else if p.Type == ProgressResolvingDeltas {
+	} else if p.Type == ResolvingDeltas {
 		t = "Resolving deltas"
 	}
 	bytesReceived := ""
