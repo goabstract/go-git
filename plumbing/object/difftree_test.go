@@ -13,7 +13,6 @@ import (
 	"github.com/goabstract/go-git/v5/storage/memory"
 	"github.com/goabstract/go-git/v5/utils/merkletrie"
 
-	fixtures "github.com/goabstract/go-git-fixtures"
 	. "gopkg.in/check.v1"
 )
 
