@@ -9,8 +9,8 @@ import (
 	"github.com/goabstract/go-git/v5/config"
 	"github.com/goabstract/go-git/v5/plumbing"
 	"github.com/goabstract/go-git/v5/plumbing/object"
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 	"github.com/goabstract/go-git/v5/plumbing/protocol/packp/sideband"
-	"github.com/goabstract/go-git/v5/plumbing/storer"
 	"github.com/goabstract/go-git/v5/plumbing/transport"
 	"golang.org/x/crypto/openpgp"
 )
@@ -57,8 +57,8 @@ type CloneOptions struct {
 	// stored, if nil nothing is stored and the capability (if supported)
 	// no-progress, is sent to the server to avoid send this information.
 	Progress sideband.Progress
-	// ProgressParse is where to get local updates on received objects and resolved deltas
-	ProgressParse storer.ProgressParsePackfile
+	// ProgressReporter is where to get local updates on received objects and resolved deltas
+	ProgressReporter *progress.ProgressReporter
 	// Tags describe how the tags will be fetched from the remote repository,
 	// by default is AllTags.
 	Tags TagMode
@@ -104,8 +104,8 @@ type PullOptions struct {
 	// stored, if nil nothing is stored and the capability (if supported)
 	// no-progress, is sent to the server to avoid send this information.
 	Progress sideband.Progress
-	// ProgressParse is where to get local updates on received objects and resolved deltas
-	ProgressParse storer.ProgressParsePackfile
+	// ProgressReporter is where to get local updates on received objects and resolved deltas
+	ProgressReporter *progress.ProgressReporter
 	// Force allows the pull to update a local branch even when the remote
 	// branch does not descend from it.
 	Force bool
@@ -155,8 +155,8 @@ type FetchOptions struct {
 	// stored, if nil nothing is stored and the capability (if supported)
 	// no-progress, is sent to the server to avoid send this information.
 	Progress sideband.Progress
-	// ProgressParse is where to get local updates on received objects and resolved deltas
-	ProgressParse storer.ProgressParsePackfile
+	// ProgressReporter is where to get local updates on received objects and resolved deltas
+	ProgressReporter *progress.ProgressReporter
 	// Tags describe how the tags will be fetched from the remote repository,
 	// by default is TagFollowing.
 	Tags TagMode

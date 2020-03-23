@@ -8,6 +8,7 @@ import (
 
 	"github.com/goabstract/go-git/v5/plumbing"
 	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 	"github.com/goabstract/go-git/v5/plumbing/storer"
 )
 
@@ -55,7 +56,7 @@ type Parser struct {
 
 	ob []Observer
 
-	Progress storer.ProgressParsePackfile
+	ProgressCollector *progress.ProgressCollector
 }
 
 // NewParser creates a new Parser. The Scanner source must be seekable.
@@ -92,20 +93,11 @@ func NewParserWithStorage(
 }
 
 func (p *Parser) writeProgress() {
-	if p.Progress == nil {
+	if p.ProgressCollector == nil {
 		return
 	}
 
-	p.Progress(&storer.PackfileParseProgress{
-		Type:     plumbing.OFSDeltaObject,
-		Received: p.deltasSeen,
-		Total:    p.scanner.deltasTotal,
-		Done:     p.deltasSeen == p.scanner.deltasTotal,
-	})
-
-	if p.deltasSeen == p.scanner.deltasTotal {
-		p.Progress = nil
-	}
+	p.ProgressCollector.ResolveDelta(p.deltasSeen, p.scanner.deltasTotal)
 }
 
 func (p *Parser) forEachObserver(f func(o Observer) error) error {

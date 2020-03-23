@@ -3,9 +3,11 @@ package packfile
 import (
 	"bytes"
 	"compress/zlib"
+	"context"
 	"io"
 	"sync"
 
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 	"github.com/goabstract/go-git/v5/plumbing/storer"
 	"github.com/goabstract/go-git/v5/utils/ioutil"
 )
@@ -26,13 +28,28 @@ const (
 
 // UpdateObjectStorage updates the storer with the objects in the given
 // packfile.
-func UpdateObjectStorage(s storer.Storer, packfile io.Reader, progress storer.ProgressParsePackfile) error {
+func UpdateObjectStorage(s storer.Storer, packfile io.Reader, pr *progress.ProgressReporter) error {
+	reader := packfile
+	var pc *progress.ProgressCollector = nil
+	ctx, cancel := context.WithCancel(context.Background())
+	if pr != nil {
+		pc = progress.NewProgressCollector(packfile, pr)
+		reader = pc
+	}
 	if pw, ok := s.(storer.PackfileWriter); ok {
-		return WritePackfileToObjectStorage(pw, packfile, progress)
+		pc.Start(ctx)
+		defer func() {
+			cancel()
+		}()
+		return WritePackfileToObjectStorage(pw, reader, pc)
 	}
 
-	p, err := NewParserWithStorage(NewScanner(packfile, progress), s)
-	p.Progress = progress
+	pc.Start(ctx)
+	defer func() {
+		cancel()
+	}()
+	p, err := NewParserWithStorage(NewScanner(reader, pc), s)
+	p.ProgressCollector = pc
 	if err != nil {
 		return err
 	}
@@ -46,9 +63,9 @@ func UpdateObjectStorage(s storer.Storer, packfile io.Reader, progress storer.Pr
 func WritePackfileToObjectStorage(
 	sw storer.PackfileWriter,
 	packfile io.Reader,
-	progress storer.ProgressParsePackfile,
+	pc *progress.ProgressCollector,
 ) (err error) {
-	w, err := sw.PackfileWriterWithProgress(progress)
+	w, err := sw.PackfileWriterWithProgress(pc)
 	if err != nil {
 		return err
 	}

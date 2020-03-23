@@ -12,7 +12,7 @@ import (
 	"sync"
 
 	"github.com/goabstract/go-git/v5/plumbing"
-	"github.com/gobastract/go-git/v5/plumbing/storer"
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 	"github.com/goabstract/go-git/v5/utils/binary"
 	"github.com/goabstract/go-git/v5/utils/ioutil"
 )
@@ -52,41 +52,33 @@ type Scanner struct {
 	// seekable a r implementing io.Seeker is required
 	IsSeekable bool
 
-	// Progress is used to write client progress,  like Receiving objects:  84% (2079/2457)
-	Progress    storer.ProgressParsePackfile
-	objectsSeen uint32
-	deltasTotal uint32
+	// Progress is used to write client progress
+	// Example: Receiving objects:  84% (2079/2457), 3.14 GiB | 1.61 MiB/s
+	ProgressCollector *progress.ProgressCollector
+	objectsSeen       uint32
+	deltasTotal       uint32
 }
 
 // NewScanner returns a new Scanner based on a reader, if the given reader
 // implements io.ReadSeeker the Scanner will be also Seekable
-func NewScanner(r io.Reader, progress storer.ProgressParsePackfile) *Scanner {
+func NewScanner(r io.Reader, pr *progress.ProgressCollector) *Scanner {
 	_, ok := r.(io.ReadSeeker)
 
 	crc := crc32.NewIEEE()
 	return &Scanner{
-		r:          newScannerReader(r, crc),
-		crc:        crc,
-		IsSeekable: ok,
-		Progress:   progress,
+		r:                 newScannerReader(r, crc),
+		crc:               crc,
+		IsSeekable:        ok,
+		ProgressCollector: pr,
 	}
 }
 
 func (s *Scanner) writeProgress() {
-	if s.Progress == nil {
+	if s.ProgressCollector == nil {
 		return
 	}
 
-	s.Progress(&storer.PackfileParseProgress{
-		Type:     plumbing.BlobObject,
-		Received: s.objectsSeen,
-		Total:    s.objects,
-		Done:     s.objectsSeen == s.objects,
-	})
-
-	if s.objectsSeen == s.objects {
-		s.Progress = nil
-	}
+	s.ProgressCollector.ReceiveObject(s.objectsSeen, s.objects)
 }
 
 func (s *Scanner) Reset(r io.Reader) {

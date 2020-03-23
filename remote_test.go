@@ -15,6 +15,7 @@ import (
 	"github.com/goabstract/go-git/v5/plumbing"
 	"github.com/goabstract/go-git/v5/plumbing/cache"
 	"github.com/goabstract/go-git/v5/plumbing/object"
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 	"github.com/goabstract/go-git/v5/plumbing/protocol/packp"
 	"github.com/goabstract/go-git/v5/plumbing/protocol/packp/capability"
 	"github.com/goabstract/go-git/v5/plumbing/storer"
@@ -391,7 +392,7 @@ func (m *mockPackfileWriter) PackfileWriter() (io.WriteCloser, error) {
 	return m.Storer.(storer.PackfileWriter).PackfileWriter()
 }
 
-func (m *mockPackfileWriter) PackfileWriterWithProgress(progress storer.ProgressParsePackfile) (io.WriteCloser, error) {
+func (m *mockPackfileWriter) PackfileWriterWithProgress(pc *progress.ProgressCollector) (io.WriteCloser, error) {
 	return m.PackfileWriter()
 }
 
