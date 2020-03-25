@@ -9,6 +9,7 @@ import (
 	"github.com/goabstract/go-git/v5/plumbing/format/idxfile"
 	"github.com/goabstract/go-git/v5/plumbing/format/objfile"
 	"github.com/goabstract/go-git/v5/plumbing/format/packfile"
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 
 	"github.com/go-git/go-billy/v5"
 )
@@ -20,7 +21,8 @@ import (
 // is renamed/moved (depends on the Filesystem implementation) to the final
 // location, if the PackWriter is not used, nothing is written
 type PackWriter struct {
-	Notify func(plumbing.Hash, *idxfile.Writer)
+	Notify            func(plumbing.Hash, *idxfile.Writer)
+	ProgressCollector *progress.Collector
 
 	fs       billy.Filesystem
 	fr, fw   billy.File
@@ -59,6 +61,7 @@ func (w *PackWriter) buildIndex() {
 	w.writer = new(idxfile.Writer)
 	var err error
 	w.parser, err = packfile.NewParser(s, w.writer)
+	w.parser.ProgressCollector = w.ProgressCollector
 	if err != nil {
 		w.result <- err
 		return

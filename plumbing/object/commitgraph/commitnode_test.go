@@ -25,7 +25,7 @@ func unpackRepositry(f *fixtures.Fixture) *filesystem.Storage {
 	storer := filesystem.NewStorage(f.DotGit(), cache.NewObjectLRUDefault())
 	p := f.Packfile()
 	defer p.Close()
-	packfile.UpdateObjectStorage(storer, p)
+	packfile.UpdateObjectStorage(storer, p, nil)
 	return storer
 }
 

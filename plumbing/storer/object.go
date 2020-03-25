@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 )
 
 var (
@@ -95,6 +96,7 @@ type PackfileWriter interface {
 	// If the Storer not implements PackfileWriter the objects should be written
 	// using the Set method.
 	PackfileWriter() (io.WriteCloser, error)
+	PackfileWriterWithProgress(*progress.Collector) (io.WriteCloser, error)
 }
 
 // EncodedObjectIter is a generic closable interface for iterating over objects.

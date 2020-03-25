@@ -8,6 +8,7 @@ import (
 
 	"github.com/goabstract/go-git/v5/plumbing"
 	"github.com/goabstract/go-git/v5/plumbing/cache"
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 	"github.com/goabstract/go-git/v5/plumbing/storer"
 )
 
@@ -53,6 +54,11 @@ type Parser struct {
 	deltas map[int64][]byte
 
 	ob []Observer
+
+	ProgressCollector *progress.Collector
+	objectsSeen       uint32
+	deltasTotal       uint32
+	deltasSeen        uint32
 }
 
 // NewParser creates a new Parser. The Scanner source must be seekable.
@@ -78,13 +84,30 @@ func NewParserWithStorage(
 	}
 
 	return &Parser{
-		storage: storage,
-		scanner: scanner,
-		ob:      ob,
-		count:   0,
-		cache:   cache.NewBufferLRUDefault(),
-		deltas:  deltas,
+		storage:    storage,
+		scanner:    scanner,
+		ob:         ob,
+		count:      0,
+		deltasSeen: 0,
+		cache:      cache.NewBufferLRUDefault(),
+		deltas:     deltas,
 	}, nil
+}
+
+func (p *Parser) writeDeltaProgress() {
+	if p.ProgressCollector == nil {
+		return
+	}
+
+	p.ProgressCollector.ResolveDelta(p.deltasSeen, p.deltasTotal)
+}
+
+func (p *Parser) writeObjectProgress() {
+	if p.ProgressCollector == nil {
+		return
+	}
+
+	p.ProgressCollector.ReceiveObject(p.objectsSeen, p.count)
 }
 
 func (p *Parser) forEachObserver(f func(o Observer) error) error {
@@ -256,8 +279,14 @@ func (p *Parser) indexObjects() error {
 			copy(p.deltas[oh.Offset], data)
 		}
 
+		if delta {
+			p.deltasTotal++
+		}
+
 		p.oiByOffset[oh.Offset] = ota
 		p.oi[i] = ota
+		p.objectsSeen++
+		p.writeObjectProgress()
 	}
 
 	return nil
@@ -271,6 +300,12 @@ func (p *Parser) resolveDeltas() error {
 		if err != nil {
 			return err
 		}
+
+		if obj.DiskType.IsDelta() {
+			p.deltasSeen++
+			p.writeDeltaProgress()
+		}
+
 		content := buf.Bytes()
 
 		if err := p.onInflatedObjectHeader(obj.Type, obj.Length, obj.Offset); err != nil {
@@ -394,6 +429,7 @@ func (p *Parser) resolveObject(
 		}
 	}
 	_, err = w.Write(data)
+
 	return err
 }
 

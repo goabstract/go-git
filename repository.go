@@ -764,12 +764,13 @@ func (r *Repository) clone(ctx context.Context, o *CloneOptions) error {
 	}
 
 	ref, err := r.fetchAndUpdateReferences(ctx, &FetchOptions{
-		RefSpecs:   c.Fetch,
-		Depth:      o.Depth,
-		Auth:       o.Auth,
-		Progress:   o.Progress,
-		Tags:       o.Tags,
-		RemoteName: o.RemoteName,
+		RefSpecs:         c.Fetch,
+		Depth:            o.Depth,
+		Auth:             o.Auth,
+		Progress:         o.Progress,
+		Tags:             o.Tags,
+		RemoteName:       o.RemoteName,
+		ProgressReporter: o.ProgressReporter,
 	}, o.ReferenceName)
 	if err != nil {
 		return err

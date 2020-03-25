@@ -10,6 +10,7 @@ import (
 	"github.com/goabstract/go-git/v5/plumbing/format/idxfile"
 	"github.com/goabstract/go-git/v5/plumbing/format/objfile"
 	"github.com/goabstract/go-git/v5/plumbing/format/packfile"
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 	"github.com/goabstract/go-git/v5/plumbing/storer"
 	"github.com/goabstract/go-git/v5/storage/filesystem/dotgit"
 	"github.com/goabstract/go-git/v5/utils/ioutil"
@@ -93,7 +94,7 @@ func (s *ObjectStorage) NewEncodedObject() plumbing.EncodedObject {
 	return &plumbing.MemoryObject{}
 }
 
-func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
+func (s *ObjectStorage) packfileWriter(pc *progress.Collector) (io.WriteCloser, error) {
 	if err := s.requireIndex(); err != nil {
 		return nil, err
 	}
@@ -103,6 +104,8 @@ func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
 		return nil, err
 	}
 
+	w.ProgressCollector = pc
+
 	w.Notify = func(h plumbing.Hash, writer *idxfile.Writer) {
 		index, err := writer.Index()
 		if err == nil {
@@ -111,6 +114,16 @@ func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
 	}
 
 	return w, nil
+}
+
+// PackfileWriter honors storage.PackfileWriter.
+func (s *ObjectStorage) PackfileWriter() (io.WriteCloser, error) {
+	return s.packfileWriter(nil)
+}
+
+// PackfileWriterWithProgress honors storage.PackfileWriter.
+func (s *ObjectStorage) PackfileWriterWithProgress(pc *progress.Collector) (io.WriteCloser, error) {
+	return s.packfileWriter(pc)
 }
 
 // SetEncodedObject adds a new object to the storage.
