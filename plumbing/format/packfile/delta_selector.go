@@ -138,11 +138,9 @@ func (dw *deltaSelector) fixAndBreakChains(objectsToPack []*ObjectToPack) error 
 	for _, otp := range objectsToPack {
 		m[otp.Hash()] = otp
 	}
-
-	for _, otp := range objectsToPack {
-		if err := dw.fixAndBreakChainsOne(m, otp); err != nil {
-			return err
-		}
+	b := NewDeltaBuilder(dw, m)
+	if _, err := b.PrepareData(); err != nil {
+		return err
 	}
 
 	return nil
