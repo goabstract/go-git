@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"sync"
 
 	"github.com/goabstract/go-git/v5/plumbing"
 	"github.com/goabstract/go-git/v5/plumbing/cache"
@@ -55,6 +56,7 @@ type Parser struct {
 
 	ob []Observer
 
+	m                 sync.Mutex
 	ProgressCollector *progress.Collector
 	objectsSeen       uint32
 	deltasTotal       uint32
@@ -94,7 +96,18 @@ func NewParserWithStorage(
 	}, nil
 }
 
+// UseProgressCollector sets up the parser to use a *progress.Collector
+func (p *Parser) UseProgressCollector(c *progress.Collector) {
+	p.m.Lock()
+	defer p.m.Unlock()
+
+	p.ProgressCollector = c
+}
+
 func (p *Parser) writeDeltaProgress() {
+	p.m.Lock()
+	defer p.m.Unlock()
+
 	if p.ProgressCollector == nil {
 		return
 	}
@@ -103,6 +116,9 @@ func (p *Parser) writeDeltaProgress() {
 }
 
 func (p *Parser) writeObjectProgress() {
+	p.m.Lock()
+	defer p.m.Unlock()
+
 	if p.ProgressCollector == nil {
 		return
 	}

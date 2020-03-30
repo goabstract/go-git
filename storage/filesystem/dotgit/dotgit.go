@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/goabstract/go-git/v5/plumbing"
+	"github.com/goabstract/go-git/v5/plumbing/progress"
 	"github.com/goabstract/go-git/v5/storage"
 	"github.com/goabstract/go-git/v5/utils/ioutil"
 
@@ -193,9 +194,9 @@ func (d *DotGit) Shallow() (billy.File, error) {
 
 // NewObjectPack return a writer for a new packfile, it saves the packfile to
 // disk and also generates and save the index for the given packfile.
-func (d *DotGit) NewObjectPack() (*PackWriter, error) {
+func (d *DotGit) NewObjectPack(pc *progress.Collector) (*PackWriter, error) {
 	d.cleanPackList()
-	return newPackWrite(d.fs)
+	return newPackWrite(d.fs, pc)
 }
 
 // ObjectPacks returns the list of availables packfiles

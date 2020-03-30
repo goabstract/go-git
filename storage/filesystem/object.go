@@ -99,12 +99,10 @@ func (s *ObjectStorage) packfileWriter(pc *progress.Collector) (io.WriteCloser, 
 		return nil, err
 	}
 
-	w, err := s.dir.NewObjectPack()
+	w, err := s.dir.NewObjectPack(pc)
 	if err != nil {
 		return nil, err
 	}
-
-	w.ProgressCollector = pc
 
 	w.Notify = func(h plumbing.Hash, writer *idxfile.Writer) {
 		index, err := writer.Index()
