@@ -21,8 +21,7 @@ import (
 // is renamed/moved (depends on the Filesystem implementation) to the final
 // location, if the PackWriter is not used, nothing is written
 type PackWriter struct {
-	Notify            func(plumbing.Hash, *idxfile.Writer)
-	ProgressCollector *progress.Collector
+	Notify func(plumbing.Hash, *idxfile.Writer)
 
 	fs       billy.Filesystem
 	fr, fw   billy.File
@@ -33,7 +32,7 @@ type PackWriter struct {
 	result   chan error
 }
 
-func newPackWrite(fs billy.Filesystem) (*PackWriter, error) {
+func newPackWrite(fs billy.Filesystem, pc *progress.Collector) (*PackWriter, error) {
 	fw, err := fs.TempFile(fs.Join(objectsPath, packPath), "tmp_pack_")
 	if err != nil {
 		return nil, err
@@ -52,20 +51,21 @@ func newPackWrite(fs billy.Filesystem) (*PackWriter, error) {
 		result: make(chan error),
 	}
 
-	go writer.buildIndex()
+	go writer.buildIndex(pc)
 	return writer, nil
 }
 
-func (w *PackWriter) buildIndex() {
+func (w *PackWriter) buildIndex(pc *progress.Collector) {
 	s := packfile.NewScanner(w.synced)
 	w.writer = new(idxfile.Writer)
 	var err error
 	w.parser, err = packfile.NewParser(s, w.writer)
-	w.parser.ProgressCollector = w.ProgressCollector
 	if err != nil {
 		w.result <- err
 		return
 	}
+
+	w.parser.UseProgressCollector(pc)
 
 	checksum, err := w.parser.Parse()
 	if err != nil {
