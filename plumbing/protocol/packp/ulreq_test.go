@@ -26,10 +26,11 @@ func (s *UlReqSuite) TestNewUploadRequestFromCapabilities(c *C) {
 	cap.Set(capability.ThinPack)
 	cap.Set(capability.OFSDelta)
 	cap.Set(capability.Agent, "foo")
+	cap.Set(capability.Shallow)
 
 	r := NewUploadRequestFromCapabilities(cap)
 	c.Assert(r.Capabilities.String(), Equals,
-		"multi_ack_detailed side-band-64k thin-pack ofs-delta agent=go-git/4.x",
+		"multi_ack_detailed side-band-64k thin-pack ofs-delta agent=go-git/4.x shallow",
 	)
 }
 
