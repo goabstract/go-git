@@ -408,6 +408,10 @@ func (r *Remote) fetchPack(ctx context.Context, o *FetchOptions, s transport.Upl
 		return err
 	}
 
+	if err = r.pruneShallow(); err != nil {
+		return err
+	}
+
 	return err
 }
 
@@ -764,6 +768,17 @@ func getWants(localStorer storage.Storer, refs memory.ReferenceStorage) ([]plumb
 
 		if !exists {
 			wants[hash] = true
+		} else {
+			shallows, err := localStorer.Shallow()
+			if err != nil {
+				return nil, err
+			}
+
+			for _, shallow := range shallows {
+				if shallow == hash {
+					wants[hash] = true
+				}
+			}
 		}
 	}
 
@@ -1104,8 +1119,33 @@ func pushHashes(
 	return rs, nil
 }
 
+func (r *Remote) pruneShallow() error {
+	existingShallows, err := r.s.Shallow()
+	if err != nil {
+		return err
+	}
+
+	shallows := []plumbing.Hash{}
+
+	for _, shallow := range existingShallows {
+		if c, err := object.GetCommit(r.s, shallow); err == nil {
+			anyParents := false
+			for i := 0; i < c.NumParents(); i++ {
+				p, _ := c.Parent(i)
+				anyParents = anyParents || p != nil
+			}
+
+			if !anyParents {
+				shallows = append(shallows, shallow)
+			}
+		}
+	}
+
+	return r.s.SetShallow(shallows)
+}
+
 func (r *Remote) updateShallow(o *FetchOptions, resp *packp.UploadPackResponse) error {
-	if o.Depth == 0 || len(resp.Shallows) == 0 {
+	if o.Depth == 0 {
 		return nil
 	}
 
@@ -1114,14 +1154,17 @@ func (r *Remote) updateShallow(o *FetchOptions, resp *packp.UploadPackResponse) 
 		return err
 	}
 
-outer:
-	for _, s := range resp.Shallows {
-		for _, oldS := range shallows {
-			if s == oldS {
-				continue outer
+	if len(resp.Shallows) > 0 {
+	outer:
+		for _, s := range resp.Shallows {
+			for _, oldS := range shallows {
+				if s == oldS {
+					continue outer
+				}
 			}
+			shallows = append(shallows, s)
 		}
-		shallows = append(shallows, s)
+
 	}
 
 	return r.s.SetShallow(shallows)
