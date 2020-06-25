@@ -207,10 +207,8 @@ func (s *RemoteSuite) TestFetchWithHashes(c *C) {
 		Hashes: []plumbing.Hash{
 			plumbing.NewHash(hash),
 		},
-	}, []*plumbing.Reference{
-		// we get this reference because the tag points to it
-		plumbing.NewReferenceFromStrings("refs/tags/v1.0.0", hash),
-	})
+		Tags: NoTags,
+	}, nil)
 
 	commits := r.s.(*memory.Storage).Commits
 	c.Assert(commits, HasLen, 1)
@@ -239,9 +237,8 @@ func (s *RemoteSuite) TestFetchWithHashesInShallow(c *C) {
 		Hashes: []plumbing.Hash{
 			headHash,
 		},
-	}, []*plumbing.Reference{
-		plumbing.NewReferenceFromStrings("refs/tags/v1.0.0", headHash.String()),
-	})
+		Tags: NoTags,
+	}, nil)
 
 	s.assertShallows(c, r, 1)
 
@@ -260,9 +257,9 @@ func (s *RemoteSuite) TestFetchWithHashesInShallow(c *C) {
 		Hashes: []plumbing.Hash{
 			olderHash,
 		},
+		Tags: NoTags,
 	}, []*plumbing.Reference{
 		plumbing.NewReferenceFromStrings("refs/remotes/origin/master", headHash.String()),
-		plumbing.NewReferenceFromStrings("refs/tags/v1.0.0", headHash.String()),
 	})
 
 	// Control we did get it
@@ -335,9 +332,8 @@ func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
 		Hashes: []plumbing.Hash{
 			plumbing.NewHash(hash),
 		},
-	}, []*plumbing.Reference{
-		plumbing.NewReferenceFromStrings("refs/tags/v1.0.0", hash),
-	})
+		Tags: NoTags,
+	}, nil)
 
 	commits := r.s.(*memory.Storage).Commits
 	c.Assert(commits, HasLen, 2)
