@@ -1145,7 +1145,7 @@ func (r *Remote) pruneShallow() error {
 }
 
 func (r *Remote) updateShallow(o *FetchOptions, resp *packp.UploadPackResponse) error {
-	if o.Depth == 0 {
+	if o.Depth == 0 || len(resp.Shallows) == 0 {
 		return nil
 	}
 
@@ -1154,17 +1154,14 @@ func (r *Remote) updateShallow(o *FetchOptions, resp *packp.UploadPackResponse) 
 		return err
 	}
 
-	if len(resp.Shallows) > 0 {
-	outer:
-		for _, s := range resp.Shallows {
-			for _, oldS := range shallows {
-				if s == oldS {
-					continue outer
-				}
+outer:
+	for _, s := range resp.Shallows {
+		for _, oldS := range shallows {
+			if s == oldS {
+				continue outer
 			}
-			shallows = append(shallows, s)
 		}
-
+		shallows = append(shallows, s)
 	}
 
 	return r.s.SetShallow(shallows)
