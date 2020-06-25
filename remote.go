@@ -777,7 +777,7 @@ func getWants(localStorer storage.Storer, refs memory.ReferenceStorage) ([]plumb
 		}
 
 		if exists {
-			if isShallow, ok := shallowCommits[hash]; ok && isShallow {
+			if _, isShallow := shallowCommits[hash]; isShallow {
 				wants[hash] = true
 			}
 		} else {
