@@ -759,6 +759,16 @@ func doCalculateRefs(
 
 func getWants(localStorer storage.Storer, refs memory.ReferenceStorage) ([]plumbing.Hash, error) {
 	wants := map[plumbing.Hash]bool{}
+
+	shallows, err := localStorer.Shallow()
+	if err != nil {
+		return nil, err
+	}
+	shallowCommits := map[plumbing.Hash]bool{}
+	for _, shallow := range shallows {
+		shallowCommits[shallow] = true
+	}
+
 	for _, ref := range refs {
 		hash := ref.Hash()
 		exists, err := objectExists(localStorer, ref.Hash())
@@ -766,19 +776,12 @@ func getWants(localStorer storage.Storer, refs memory.ReferenceStorage) ([]plumb
 			return nil, err
 		}
 
-		if !exists {
-			wants[hash] = true
+		if exists {
+			if isShallow, ok := shallowCommits[hash]; ok && isShallow {
+				wants[hash] = true
+			}
 		} else {
-			shallows, err := localStorer.Shallow()
-			if err != nil {
-				return nil, err
-			}
-
-			for _, shallow := range shallows {
-				if shallow == hash {
-					wants[hash] = true
-				}
-			}
+			wants[hash] = true
 		}
 	}
 
