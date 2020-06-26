@@ -200,12 +200,12 @@ func (s *RemoteSuite) TestFetchWithHashes(c *C) {
 		URLs: []string{s.GetBasicLocalRepositoryURL()},
 	})
 
-	hash := "6ecf0ef2c2dffb796033e5a02219af86ec6584e5"
+	hash := plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5")
 
 	s.testFetch(c, r, &FetchOptions{
 		Depth: 1,
 		Hashes: []plumbing.Hash{
-			plumbing.NewHash(hash),
+			hash,
 		},
 		Tags: NoTags,
 	}, nil)
@@ -323,12 +323,12 @@ func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
 		URLs: []string{s.GetBasicLocalRepositoryURL()},
 	})
 
-	hash := "6ecf0ef2c2dffb796033e5a02219af86ec6584e5"
+	hash := plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5")
 
 	s.testFetch(c, r, &FetchOptions{
 		Depth: 2,
 		Hashes: []plumbing.Hash{
-			plumbing.NewHash(hash),
+			hash,
 		},
 		Tags: NoTags,
 	}, nil)
@@ -336,7 +336,7 @@ func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
 	commits := r.s.(*memory.Storage).Commits
 	c.Assert(commits, HasLen, 2)
 
-	commit, err := object.GetCommit(r.s, plumbing.NewHash(hash))
+	commit, err := object.GetCommit(r.s, hash)
 	c.Assert(err, IsNil)
 
 	parents := commit.Parents()
