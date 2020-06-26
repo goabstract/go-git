@@ -1135,20 +1135,13 @@ func (r *Remote) updateShallow(o *FetchOptions, resp *packp.UploadPackResponse) 
 
 	shallows := []plumbing.Hash{}
 
-	// filter out the SHAs that are unshallowed
-	for _, s := range currentShallows {
-		if isShallow, ok := shallowUpdates[s]; ok && !isShallow {
-			continue
-		}
-		shallowUpdates[s] = true
-		shallows = append(shallows, s)
-	}
-
-	// filter out the SHAs that are already shallow
-	for _, s := range resp.Shallows {
+	// filter out the SHAs that are unshallowed, and only include each
+	// shallow commit once
+	for _, s := range append(currentShallows, resp.Shallows...) {
 		if _, ok := shallowUpdates[s]; ok {
 			continue
 		}
+		shallowUpdates[s] = true
 		shallows = append(shallows, s)
 	}
 

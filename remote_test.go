@@ -200,12 +200,10 @@ func (s *RemoteSuite) TestFetchWithHashes(c *C) {
 		URLs: []string{s.GetBasicLocalRepositoryURL()},
 	})
 
-	hash := plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5")
-
 	s.testFetch(c, r, &FetchOptions{
 		Depth: 1,
 		Hashes: []plumbing.Hash{
-			hash,
+			plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5"),
 		},
 		Tags: NoTags,
 	}, nil)
