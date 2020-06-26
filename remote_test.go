@@ -251,16 +251,11 @@ func (s *RemoteSuite) TestFetchWithHashesInShallow(c *C) {
 	// We now fetch an older SHA
 	s.testFetch(c, r, &FetchOptions{
 		Depth: 1,
-		RefSpecs: []config.RefSpec{
-			config.RefSpec("+refs/heads/master:refs/remotes/origin/master"),
-		},
 		Hashes: []plumbing.Hash{
 			olderHash,
 		},
 		Tags: NoTags,
-	}, []*plumbing.Reference{
-		plumbing.NewReferenceFromStrings("refs/remotes/origin/master", headHash.String()),
-	})
+	}, nil)
 
 	// Control we did get it
 	commits = r.s.(*memory.Storage).Commits
@@ -268,7 +263,10 @@ func (s *RemoteSuite) TestFetchWithHashesInShallow(c *C) {
 	_, err = object.GetCommit(r.s, olderHash)
 	c.Assert(err, IsNil)
 
-	s.assertShallows(c, r, 1)
+	// NOTE: the server doesn't emit an `unshallow` packet line in
+	// this scenario, so it won't know to update the list of shallow
+	// commits. This is consistent with git cli.
+	s.assertShallows(c, r, 2)
 }
 
 func (s *RemoteSuite) TestFetchShallowBranchHeadThenFetchUnshallowBranch(c *C) {

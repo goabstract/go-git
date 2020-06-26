@@ -408,10 +408,6 @@ func (r *Remote) fetchPack(ctx context.Context, o *FetchOptions, s transport.Upl
 		return err
 	}
 
-	if err = r.pruneShallow(); err != nil {
-		return err
-	}
-
 	return err
 }
 
@@ -1122,47 +1118,36 @@ func pushHashes(
 	return rs, nil
 }
 
-func (r *Remote) pruneShallow() error {
-	existingShallows, err := r.s.Shallow()
+func (r *Remote) updateShallow(o *FetchOptions, resp *packp.UploadPackResponse) error {
+	if o.Depth == 0 || len(resp.Shallows)+len(resp.Unshallows) == 0 {
+		return nil
+	}
+
+	shallowUpdates := map[plumbing.Hash]bool{}
+	for _, s := range resp.Unshallows {
+		shallowUpdates[s] = false
+	}
+
+	currentShallows, err := r.s.Shallow()
 	if err != nil {
 		return err
 	}
 
 	shallows := []plumbing.Hash{}
 
-	for _, shallow := range existingShallows {
-		if c, err := object.GetCommit(r.s, shallow); err == nil {
-			anyParents := false
-			for i := 0; i < c.NumParents(); i++ {
-				p, _ := c.Parent(i)
-				anyParents = anyParents || p != nil
-			}
-
-			if !anyParents {
-				shallows = append(shallows, shallow)
-			}
+	// filter out the SHAs that are unshallowed
+	for _, s := range currentShallows {
+		if isShallow, ok := shallowUpdates[s]; ok && !isShallow {
+			continue
 		}
+		shallowUpdates[s] = true
+		shallows = append(shallows, s)
 	}
 
-	return r.s.SetShallow(shallows)
-}
-
-func (r *Remote) updateShallow(o *FetchOptions, resp *packp.UploadPackResponse) error {
-	if o.Depth == 0 || len(resp.Shallows) == 0 {
-		return nil
-	}
-
-	shallows, err := r.s.Shallow()
-	if err != nil {
-		return err
-	}
-
-outer:
+	// filter out the SHAs that are already shallow
 	for _, s := range resp.Shallows {
-		for _, oldS := range shallows {
-			if s == oldS {
-				continue outer
-			}
+		if _, ok := shallowUpdates[s]; ok {
+			continue
 		}
 		shallows = append(shallows, s)
 	}
