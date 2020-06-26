@@ -2822,7 +2822,7 @@ func (s *RepositorySuite) TestBrokenMultipleShallowFetch(c *C) {
 
 	shallows, err = r.Storer.Shallow()
 	c.Assert(err, IsNil)
-	c.Assert(len(shallows), Equals, 3)
+	c.Assert(len(shallows), Equals, 2)
 
 	ref, err = r.Reference("refs/heads/master", true)
 	c.Assert(err, IsNil)

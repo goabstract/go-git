@@ -755,6 +755,16 @@ func doCalculateRefs(
 
 func getWants(localStorer storage.Storer, refs memory.ReferenceStorage) ([]plumbing.Hash, error) {
 	wants := map[plumbing.Hash]bool{}
+
+	shallows, err := localStorer.Shallow()
+	if err != nil {
+		return nil, err
+	}
+	shallowCommits := map[plumbing.Hash]bool{}
+	for _, shallow := range shallows {
+		shallowCommits[shallow] = true
+	}
+
 	for _, ref := range refs {
 		hash := ref.Hash()
 		exists, err := objectExists(localStorer, ref.Hash())
@@ -762,7 +772,11 @@ func getWants(localStorer storage.Storer, refs memory.ReferenceStorage) ([]plumb
 			return nil, err
 		}
 
-		if !exists {
+		if exists {
+			if _, isShallow := shallowCommits[hash]; isShallow {
+				wants[hash] = true
+			}
+		} else {
 			wants[hash] = true
 		}
 	}
@@ -1105,22 +1119,29 @@ func pushHashes(
 }
 
 func (r *Remote) updateShallow(o *FetchOptions, resp *packp.UploadPackResponse) error {
-	if o.Depth == 0 || len(resp.Shallows) == 0 {
+	if o.Depth == 0 || len(resp.Shallows)+len(resp.Unshallows) == 0 {
 		return nil
 	}
 
-	shallows, err := r.s.Shallow()
+	shallowUpdates := map[plumbing.Hash]bool{}
+	for _, s := range resp.Unshallows {
+		shallowUpdates[s] = false
+	}
+
+	currentShallows, err := r.s.Shallow()
 	if err != nil {
 		return err
 	}
 
-outer:
-	for _, s := range resp.Shallows {
-		for _, oldS := range shallows {
-			if s == oldS {
-				continue outer
-			}
+	shallows := []plumbing.Hash{}
+
+	// filter out the SHAs that are unshallowed, and only include each
+	// shallow commit once
+	for _, s := range append(currentShallows, resp.Shallows...) {
+		if _, ok := shallowUpdates[s]; ok {
+			continue
 		}
+		shallowUpdates[s] = true
 		shallows = append(shallows, s)
 	}
 

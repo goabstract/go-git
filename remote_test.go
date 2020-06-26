@@ -190,6 +190,8 @@ func (s *RemoteSuite) TestFetchWithDepth(c *C) {
 		plumbing.NewReferenceFromStrings("refs/tags/v1.0.0", "6ecf0ef2c2dffb796033e5a02219af86ec6584e5"),
 	})
 
+	s.assertShallows(c, r, 2)
+
 	c.Assert(r.s.(*memory.Storage).Objects, HasLen, 18)
 }
 
@@ -203,10 +205,13 @@ func (s *RemoteSuite) TestFetchWithHashes(c *C) {
 		Hashes: []plumbing.Hash{
 			plumbing.NewHash("6ecf0ef2c2dffb796033e5a02219af86ec6584e5"),
 		},
+		Tags: NoTags,
 	}, nil)
 
 	commits := r.s.(*memory.Storage).Commits
 	c.Assert(commits, HasLen, 1)
+
+	s.assertShallows(c, r, 1)
 }
 
 func (s *RemoteSuite) TestFetchWithHashesInShallow(c *C) {
@@ -230,7 +235,10 @@ func (s *RemoteSuite) TestFetchWithHashesInShallow(c *C) {
 		Hashes: []plumbing.Hash{
 			headHash,
 		},
+		Tags: NoTags,
 	}, nil)
+
+	s.assertShallows(c, r, 1)
 
 	// Control we did get it
 	commits := r.s.(*memory.Storage).Commits
@@ -241,12 +249,10 @@ func (s *RemoteSuite) TestFetchWithHashesInShallow(c *C) {
 	// We now fetch an older SHA
 	s.testFetch(c, r, &FetchOptions{
 		Depth: 1,
-		RefSpecs: []config.RefSpec{
-			config.RefSpec("+refs/heads/master:refs/remotes/origin/master"),
-		},
 		Hashes: []plumbing.Hash{
 			olderHash,
 		},
+		Tags: NoTags,
 	}, nil)
 
 	// Control we did get it
@@ -254,6 +260,60 @@ func (s *RemoteSuite) TestFetchWithHashesInShallow(c *C) {
 	c.Assert(commits, HasLen, 2)
 	_, err = object.GetCommit(r.s, olderHash)
 	c.Assert(err, IsNil)
+
+	// NOTE: the server doesn't emit an `unshallow` packet line in
+	// this scenario, so it won't know to update the list of shallow
+	// commits. This is consistent with git cli.
+	s.assertShallows(c, r, 2)
+}
+
+func (s *RemoteSuite) TestFetchShallowBranchHeadThenFetchUnshallowBranch(c *C) {
+	r := NewRemote(memory.NewStorage(), &config.RemoteConfig{
+		URLs: []string{s.GetBasicLocalRepositoryURL()},
+	})
+
+	// We first need to set the right capabilities otherwise we can't fetch
+	// the commit we want
+	p := filepath.Join(r.c.URLs[0], "config")
+	cfgCmd := exec.Command("git", "config", "--file", p, "--bool", "uploadpack.allowAnySHA1InWant", "true")
+	err := cfgCmd.Run()
+	c.Assert(err, IsNil)
+
+	headHash := plumbing.NewHash("e8d3ffab552895c19b9fcf7aa264d277cde33881")
+	firstHash := plumbing.NewHash("b029517f6300c2da0f4b651b8642506cd6aaf45d")
+
+	// We start by fetching the HEAD
+	s.testFetch(c, r, &FetchOptions{
+		Depth: 1,
+		Hashes: []plumbing.Hash{
+			headHash,
+		},
+	}, nil)
+
+	// Control we did get it
+	commits := r.s.(*memory.Storage).Commits
+	c.Assert(commits, HasLen, 1)
+	_, err = object.GetCommit(r.s, headHash)
+	c.Assert(err, IsNil)
+
+	// Fetch the branch where our shallow commit is the head of the branch
+	s.testFetch(c, r, &FetchOptions{
+		Depth: 2147483647,
+		RefSpecs: []config.RefSpec{
+			config.RefSpec("+refs/heads/branch:refs/remotes/origin/branch"),
+		},
+	}, []*plumbing.Reference{
+		plumbing.NewReferenceFromStrings("refs/remotes/origin/branch", headHash.String()),
+	})
+
+	// Control we did get it
+	commits = r.s.(*memory.Storage).Commits
+	totalCommitsInBranch := 8 // SEE: https://github.com/git-fixtures/basic/commits/branch
+	c.Assert(len(commits), Equals, totalCommitsInBranch)
+	_, err = object.GetCommit(r.s, firstHash)
+	c.Assert(err, IsNil)
+
+	s.assertShallows(c, r, 0)
 }
 
 func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
@@ -268,6 +328,7 @@ func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
 		Hashes: []plumbing.Hash{
 			hash,
 		},
+		Tags: NoTags,
 	}, nil)
 
 	commits := r.s.(*memory.Storage).Commits
@@ -291,6 +352,8 @@ func (s *RemoteSuite) TestFetchWithHashesDepthOfTwo(c *C) {
 
 	c.Assert(err, IsNil)
 	c.Assert(output, DeepEquals, expected)
+
+	s.assertShallows(c, r, 1)
 }
 
 func (s *RemoteSuite) TestFetchWithHashesAndReferences(c *C) {
@@ -334,27 +397,28 @@ func (s *RemoteSuite) TestFetchWithHashesButMissing(c *C) {
 	})
 
 	c.Assert(err.Error(), Equals, "empty packfile")
+	s.assertShallows(c, r, 0)
+}
+
+func (s *RemoteSuite) assertShallows(c *C, r *Remote, expected int) {
+	shallowCommits, err := r.s.Shallow()
+	c.Assert(err, IsNil)
+
+	c.Assert(shallowCommits, HasLen, expected)
 }
 
 func (s *RemoteSuite) testFetch(c *C, r *Remote, o *FetchOptions, expected []*plumbing.Reference) {
 	err := r.Fetch(o)
-	c.Assert(err, IsNil)
+	if err != NoErrAlreadyUpToDate {
+		c.Assert(err, IsNil)
+	}
 
 	var refs int
 	l, err := r.s.IterReferences()
 	c.Assert(err, IsNil)
 	l.ForEach(func(r *plumbing.Reference) error { refs++; return nil })
 
-	if o.Depth > 0 {
-		shallowCommits, err := r.s.Shallow()
-		c.Assert(err, IsNil)
-
-		// Only the depth-most parent of any given commit will be shallow.
-		commits := len(r.s.(*memory.Storage).Commits) / o.Depth
-		c.Assert(shallowCommits, HasLen, commits)
-	} else {
-		c.Assert(refs, Equals, len(expected))
-	}
+	c.Assert(refs, Equals, len(expected))
 
 	for _, exp := range expected {
 		r, err := r.s.Reference(exp.Name())
