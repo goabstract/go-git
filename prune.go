@@ -36,13 +36,18 @@ func (r *Repository) Prune(opt PruneOptions) error {
 		return ErrLooseObjectsNotSupported
 	}
 
-	pw := newObjectWalker(r.Storer)
-	err := pw.walkAllRefs()
-	if err != nil {
-		return err
-	}
+	var pw *objectWalker
+
 	// Now walk all (loose) objects in storage.
 	return los.ForEachObjectHash(func(hash plumbing.Hash) error {
+		if pw == nil {
+			pw = newObjectWalker(r.Storer)
+			err := pw.walkAllRefs()
+			if err != nil {
+				return err
+			}
+		}
+
 		// Get out if we have seen this object.
 		if pw.isSeen(hash) {
 			return nil
